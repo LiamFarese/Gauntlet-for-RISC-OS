@@ -1,15 +1,14 @@
-#include <iostream>
-
-#include "oslib/wimp.h"
-#include "Event.h"
-
-constexpr auto myfun(int x) -> int {
-  return x * 2;
-} 
+#include "Application.h"
 
 auto main() -> int {
-  std::cout << "Hello world \n";
-  static constexpr int x {4};
-  std::cout << myfun(x) << '\n';
+  
+  Application::reference ref;
+  ref.quit = FALSE;
+
+  Application::task_setup();
+  Application::iconbar_setup(&ref);
+  Application::menu_setup(&ref);
+
+  Application::event_loop(&ref);
   return 0;
 }
