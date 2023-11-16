@@ -9,10 +9,10 @@ OBJDIR = build/obj
 SOURCES = $(wildcard $(SRCDIR)/*.cpp)
 OBJECTS = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SOURCES))
 
-EXECUTABLE = !RunImage,ff8
+EXECUTABLE = build/!RunImage,ff8
 
 $(EXECUTABLE): $(OBJECTS)
-	$(CXX) $(CXXFLAGS) $(LINKS) -o build/$(EXECUTABLE) $(OBJECTS)
+	$(CXX) $(CXXFLAGS) $(LINKS) -o $(EXECUTABLE) $(OBJECTS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	@mkdir -p $(@D)
