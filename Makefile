@@ -4,15 +4,18 @@ INCLUDES = -I$(GCCSDK_INSTALL_ENV)/include
 LINKS = -L$(GCCSDK_INSTALL_ENV)/lib -lDesk-scl
 
 SRCDIR = src
+OBJDIR = build/obj
+
 SOURCES = $(wildcard $(SRCDIR)/*.cpp)
-OBJECTS = $(SOURCES:$(SRCDIR)/%.cpp=%.o)
+OBJECTS = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SOURCES))
 
 EXECUTABLE = !RunImage,ff8
 
 $(EXECUTABLE): $(OBJECTS)
-	$(CXX) $(CXXFLAGS) $(LINKS) -o $(EXECUTABLE) $(OBJECTS)
+	$(CXX) $(CXXFLAGS) $(LINKS) -o build/$(EXECUTABLE) $(OBJECTS)
 
-$(SRCDIR)/%.o: $(SRCDIR)/%.cpp
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
+	@mkdir -p $(@D)
 	$(CXX) -c $(CXXFLAGS) $(INCLUDES) $< -o $@
 
 clean:

@@ -9,6 +9,6 @@ auto main() -> int {
   Application::iconbar_setup(&ref);
   Application::menu_setup(&ref);
 
-  Application::event_loop(&ref);
+  Application::event_poll(&ref);
   return 0;
 }
