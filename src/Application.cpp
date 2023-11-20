@@ -45,17 +45,17 @@ void Application::iconbarSetup() {
 void Application::menuSetup() {
   // Menu options are delimited by |
   char menu[] = ">Info |Quit";
-  dialog2_block *info;
+  dialog2_block* info;
 
   ref.menuhandle = Menu_New("Gauntlet", menu);
 
   info = Dialog2_CreateDialogBlock( "ProgInfo", -1, -1, NULL, NULL, NULL);
-  Menu_Warn(ref.menuhandle, MenuOption::Info, TRUE, progInfo, (void *)info);
+  Menu_Warn(ref.menuhandle, MenuOption::Info, TRUE, progInfo, (void*)info);
 }
 
 void Application::windowSetup() {
   static char sblck[1500000];
-  static sprite_areainfo *sblock = (sprite_areainfo*)sblck;
+  static sprite_areainfo* sblock = (sprite_areainfo*)sblck;
 
   Sprite_Load((sprite_area)sblock, "<!Gauntlet$Dir>.sprites");
 
@@ -89,8 +89,8 @@ auto Application::menuChoice(event_pollblock* event, void* ref) -> BOOL {
   return TRUE;  
 }
 
-auto Application::progInfo(event_pollblock *event, void *ref) -> BOOL {
-  Dialog2_OpenDialogMenuLeaf(event, (dialog2_block *)ref);
+auto Application::progInfo(event_pollblock* event, void* ref) -> BOOL {
+  Dialog2_OpenDialogMenuLeaf(event, static_cast<dialog2_block*>(ref));
   return TRUE;
 }
 
