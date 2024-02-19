@@ -26,15 +26,17 @@ void Player::handleInputs(const SDL_Event& event){
   }
 }
 
-// TODO: implement other player classes
 void Player::selectPlayerClass(PlayerClass playerClass){
   m_playerClass = playerClass;
   switch (m_playerClass) {
-    case PlayerClass::Warrior: m_sprite.setSpriteClass(SpriteClass::Warrior); break;
-    case PlayerClass::Valkyrie: m_sprite.setSpriteClass(SpriteClass::Valkyrie); break;
-    case PlayerClass::Wizard: m_sprite.setSpriteClass(SpriteClass::Wizard); break;
-    case PlayerClass::Archer: m_sprite.setSpriteClass(SpriteClass::Archer); break;
-
+    case PlayerClass::Warrior: 
+      m_sprite.setSpriteClass(SpriteClass::Warrior); break;
+    case PlayerClass::Valkyrie: 
+      m_sprite.setSpriteClass(SpriteClass::Valkyrie); break;
+    case PlayerClass::Wizard: 
+      m_sprite.setSpriteClass(SpriteClass::Wizard); break;
+    case PlayerClass::Archer: 
+      m_sprite.setSpriteClass(SpriteClass::Archer); break;
   }
 }
 

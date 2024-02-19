@@ -2,7 +2,7 @@
 #include "SDL/SDL.h"
 
 Sprite::Sprite(SDL_Surface* spriteSheet) 
-  : m_spriteSheet(spriteSheet) {
+  : m_spriteSheet(spriteSheet){
 }
 
 void Sprite::addAnimation(AnimationState state, std::vector<SpriteIndex> frames){
