@@ -5,86 +5,86 @@
 #include <SDL/SDL_ttf.h>
 
 Game::Game() 
-  : m_screen(initScreen()), 
-    m_spriteSheet(initSpriteSheet()), 
-    m_player(m_spriteSheet, m_screen), 
-    m_running(false)
+  : screen_(init_screen()), 
+    sprite_sheet_(init_sprite_sheet()), 
+    player_(sprite_sheet_, screen_), 
+    running_(false)
 {
-  if (!m_spriteSheet) {
+  if (!sprite_sheet_) {
     // Sets screen to red on failure
-    m_screenClearColor = SDL_MapRGB(m_screen->format, 255, 0, 0);
+    screen_clear_color_ = SDL_MapRGB(screen_->format, 255, 0, 0);
   } else {
     // Sets screen to green on success
-    m_screenClearColor = SDL_MapRGB(m_screen->format, 66, 245, 203);
+    screen_clear_color_ = SDL_MapRGB(screen_->format, 66, 245, 203);
   }
 
   TTF_Init();
-  m_font = TTF_OpenFont("<!Gauntlet$Dir>.Font", 28);
+  font_ = TTF_OpenFont("<!Gauntlet$Dir>.Font", 28);
 }
 
-SDL_Surface* Game::initScreen() {
+SDL_Surface* Game::init_screen() {
   // Initialization logic for screen
   return SDL_SetVideoMode(800, 600, 0, SDL_DOUBLEBUF | SDL_HWSURFACE | SDL_FULLSCREEN);
 }
 
-SDL_Surface* Game::initSpriteSheet() {
+SDL_Surface* Game::init_sprite_sheet() {
   // Initialization logic for spriteSheet
   SDL_Surface* image = IMG_Load("<!Gauntlet$Dir>.entities");
-  SDL_Surface* formattedImage = SDL_DisplayFormatAlpha(image);
+  SDL_Surface* formatted_image = SDL_DisplayFormatAlpha(image);
   SDL_FreeSurface(image);
-  return formattedImage;
+  return formatted_image;
 }
 
 Game::~Game() {
-  TTF_CloseFont( m_font );
-  SDL_FreeSurface( m_spriteSheet );
-  SDL_FreeSurface(m_screen);
+  TTF_CloseFont(font_);
+  SDL_FreeSurface(sprite_sheet_);
+  SDL_FreeSurface(screen_);
   TTF_Quit();
   SDL_Quit();
 }
 
-void Game::handleEvents() {
-  while (SDL_PollEvent(&m_event)) {
-    if (m_event.type == SDL_QUIT || (m_event.type == SDL_KEYDOWN && m_event.key.keysym.sym == SDLK_ESCAPE)) {
-      m_running = false;
+void Game::handle_events() {
+  while (SDL_PollEvent(&event_)) {
+    if (event_.type == SDL_QUIT || (event_.type == SDL_KEYDOWN && event_.key.keysym.sym == SDLK_ESCAPE)) {
+      running_ = false;
     } else {
-      m_player.handleInputs(m_event);
+      player_.handle_inputs(event_);
     }
   }
 }
 
 void Game::update() {
-  m_player.update();
+  player_.update();
 }
 
-void Game::displayText(std::stringstream& messageString, SDL_Rect location) {
-  SDL_Surface* message = TTF_RenderText_Solid(m_font, messageString.str().c_str(), m_textColor);
+void Game::display_text(std::stringstream& message_string, SDL_Rect location) {
+  SDL_Surface* message = TTF_RenderText_Solid(font_, message_string.str().c_str(), text_color_);
 
-  SDL_FillRect(m_screen, nullptr, m_screenClearColor);
-  SDL_BlitSurface(message, nullptr, m_screen, &location);
-  SDL_Flip(m_screen);
+  SDL_FillRect(screen_, nullptr, screen_clear_color_);
+  SDL_BlitSurface(message, nullptr, screen_, &location);
+  SDL_Flip(screen_);
   SDL_FreeSurface( message );
 }
 
 void Game::render() {
   // Clear screen
-  SDL_FillRect(m_screen, nullptr, m_screenClearColor);
+  SDL_FillRect(screen_, nullptr, screen_clear_color_);
 
-  m_player.render();
+  player_.render();
 
   // Update the screen    
-  SDL_Flip(m_screen);
+  SDL_Flip(screen_);
 }
 
 void Game::run() {
 
-  m_running = true;
+  running_ = true;
 
-  m_player.setPosition(200,200);
-  m_player.selectPlayerClass(PlayerClass::Wizard);
+  player_.set_position(200,200);
+  player_.select_player_class(PlayerClass::kWizard);
 
   // Game tick rate in ms, 20 ticks per second
-  constexpr Uint32 dt {1000/20};
+  constexpr Uint32 kTickRate {1000/20};
 
   // Time at the start of the last game loop
   Uint32 previous = SDL_GetTicks();
@@ -92,27 +92,27 @@ void Game::run() {
   // Discrepancy between game tick rate and frame rate
   Uint32 accumulator = 0;
   
-  while (m_running) {
+  while (running_) {
     Uint32 current = SDL_GetTicks();
     // Time the last frame took to render
-    Uint32 frameTime = current - previous;
+    Uint32 frame_time = current - previous;
     previous = current;
 
-    accumulator += frameTime;
+    accumulator += frame_time;
 
-    handleEvents();
+    handle_events();
 
-    while(accumulator > dt) {
+    while(accumulator > kTickRate) {
       update();
-      accumulator -= dt;
+      accumulator -= kTickRate;
     }
 
     render();
   }
 
-  std::stringstream closingMessage;
-  closingMessage << "Game Closing, time since elapsed : " << SDL_GetTicks();
-  displayText(closingMessage, {150, 300});
+  std::stringstream closing_message;
+  closing_message << "Game Closing, time since elapsed : " << SDL_GetTicks();
+  display_text(closing_message, {150, 300});
 
   SDL_Delay(1000);
 }

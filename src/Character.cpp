@@ -3,15 +3,15 @@
 #include <SDL/SDL.h>
 
 Character::Character(SDL_Surface* spriteSheet, SDL_Surface* screen)
-: m_moveUp(false), m_moveDown(false), m_moveLeft(false), m_moveRight(false),
-  m_screen(screen), m_position({0,0,0,0}), m_sprite(spriteSheet) {
+: move_up_(false), move_down_(false), move_left_(false), move_right_(false),
+  screen_(screen), position_({0,0,0,0}), sprite_(spriteSheet) {
 }
 
-void Character::setPosition(int x, int y){
-  m_position.x = x;
-  m_position.y = y;
+void Character::set_position(Sint16 x, Sint16 y){
+  position_.x = x;
+  position_.y = y;
 }
 
 void Character::render(){
-  m_sprite.render(m_screen, m_position.x, m_position.y);
+  sprite_.render(screen_, position_.x, position_.y);
 }

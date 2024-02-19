@@ -18,27 +18,27 @@ public:
   void run();
 
 private:
-  SDL_Surface* m_screen;
-  SDL_Surface* m_spriteSheet;
-  Player m_player;
+  SDL_Surface* screen_;
+  SDL_Surface* sprite_sheet_;
+  Player player_;
 
-  Uint32 m_screenClearColor;
-  SDL_Color m_textColor { 255, 255, 255 };
-  TTF_Font* m_font;
+  Uint32 screen_clear_color_;
+  SDL_Color text_color_ { 255, 255, 255 };
+  TTF_Font* font_;
   
-  bool m_running;
-  SDL_Event m_event;
+  bool running_;
+  SDL_Event event_;
 
-  void handleEvents();
+  void handle_events();
 
   void update();
 
-  void displayText(std::stringstream& messageString, SDL_Rect location);
+  void display_text(std::stringstream& message_string, SDL_Rect location);
 
   void render();
 
   // Helper methods for initialization
-  SDL_Surface* initScreen();
-  SDL_Surface* initSpriteSheet();
+  SDL_Surface* init_screen();
+  SDL_Surface* init_sprite_sheet();
 
 };

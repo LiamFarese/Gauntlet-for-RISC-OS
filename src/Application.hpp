@@ -10,13 +10,13 @@ class Application {
   // Used for Event Handlers
   struct reference {
     BOOL          quit;
-    menu_ptr      menuhandle;
+    menu_ptr      menu_handle;
   };
 
   // A menu is stored as a char[], each option is indexed starting from 0
   enum MenuOption{
-    Info = 0,
-    Quit = 1
+    kInfo = 0,
+    kQuit = 1
   };
 
 public:
@@ -27,16 +27,16 @@ public:
 
 private:
 
-  reference m_ref;
+  reference ref_;
   
   // Application setup functions 
-  void taskSetup();
-  void iconbarSetup();
-  void menuSetup();
+  void task_setup();
+  void iconbar_setup();
+  void menu_setup();
 
   // Event handlers
   static BOOL click(event_pollblock* event, void* ref);
-  static BOOL menuChoice(event_pollblock* event, void* ref);
-  static BOOL progInfo(event_pollblock* event, void* ref);
-  static void windowOpen();
+  static BOOL menu_choice(event_pollblock* event, void* ref);
+  static BOOL prog_info(event_pollblock* event, void* ref);
+  static void window_open();
 };

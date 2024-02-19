@@ -1,40 +1,39 @@
 #include "Sprite.hpp"
-#include "SDL/SDL.h"
 
-Sprite::Sprite(SDL_Surface* spriteSheet) 
-  : m_spriteSheet(spriteSheet){
+Sprite::Sprite(SDL_Surface* sprite_sheet) 
+  : sprite_sheet_(sprite_sheet){
 }
 
-void Sprite::addAnimation(AnimationState state, std::vector<SpriteIndex> frames){
-  m_animations[state] = frames;
+void Sprite::add_animation(AnimationState state, std::vector<SpriteIndex> frames){
+  animations_[state] = frames;
 }
 
-void Sprite::setAnimation(AnimationState state){
-  if (m_currentState != state) {
-    m_currentState = state;
-    m_currentFrames = &m_animations[state];
-    m_currentFrame = 0; // Reset to the first frame
+void Sprite::set_animation(AnimationState state){
+  if (current_state_ != state) {
+    current_state_ = state;
+    current_frames_ = &animations_[state];
+    current_frame_ = 0; // Reset to the first frame
   }
 }
 
-void Sprite::setSpriteClass(SpriteClass spriteClass){
-  m_spriteClass = spriteClass;
+void Sprite::set_sprite_class(SpriteClass sprite_class){
+  sprite_class_ = sprite_class;
 }
 
 void Sprite::update(){
-  Uint32 frameTime = SDL_GetTicks() - m_lastFrameTime;
-  if (m_currentFrames && !m_currentFrames->empty() && frameTime > 50) {
-    m_currentFrame = (m_currentFrame + 1) % m_currentFrames->size();
-    m_lastFrameTime = SDL_GetTicks();
+  Uint32 frame_time = SDL_GetTicks() - last_frame_time_;
+  if (current_frames_ && !current_frames_->empty() && frame_time > 50) {
+    current_frame_ = (current_frame_ + 1) % current_frames_->size();
+    last_frame_time_ = SDL_GetTicks();
   }
 }
 
-void Sprite::render(SDL_Surface* targetSurface, int x, int y){
-  if (m_currentFrames && !m_currentFrames->empty()) {
-    SpriteIndex& point = (*m_currentFrames)[m_currentFrame];
-    SDL_Rect frame = {point, static_cast<Sint16>(m_spriteClass), 32, 32};
-    SDL_Rect destRect = {static_cast<Sint16>(x), static_cast<Sint16>(y), 32, 32};
-    SDL_BlitSurface(m_spriteSheet, &frame, targetSurface, &destRect);
+void Sprite::render(SDL_Surface* targetSurface, Sint16 x, Sint16 y){
+  if (current_frames_ && !current_frames_->empty()) {
+    SpriteIndex& point = (*current_frames_)[current_frame_];
+    SDL_Rect frame = {point, static_cast<Sint16>(sprite_class_), 32, 32};
+    SDL_Rect dest_rect = {x, y, 32, 32};
+    SDL_BlitSurface(sprite_sheet_, &frame, targetSurface, &dest_rect);
   }
 }
  

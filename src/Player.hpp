@@ -8,10 +8,10 @@
 #include "Sprite.hpp"
 
 enum class PlayerClass{
-  Warrior,
-  Valkyrie,
-  Wizard,
-  Archer
+  kWarrior,
+  kValkyrie,
+  kWizard,
+  kArcher
 };
 
 class Player : public Character {
@@ -20,11 +20,11 @@ public:
 
   Player(SDL_Surface* spriteSheet, SDL_Surface* screen);
     
-  void handleInputs(const SDL_Event& event);
-  void selectPlayerClass(PlayerClass playerClass);
+  void handle_inputs(const SDL_Event& event);
+  void select_player_class(PlayerClass player_class);
   void update() override;
 
 private:
-  static void initAnimations(Sprite& sprite);
-  PlayerClass m_playerClass;
+  static void init_animations(Sprite& sprite);
+  PlayerClass player_class_;
 };

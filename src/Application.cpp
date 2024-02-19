@@ -1,5 +1,7 @@
 #include "Application.hpp"
 
+#include <memory>
+
 #include <DeskLib/Wimp.h>
 #include <DeskLib/WimpSWIs.h>
 #include <DeskLib/Event.h>
@@ -12,22 +14,21 @@
 #include <DeskLib/Template.h>
 #include <DeskLib/Handler.h>
 #include <DeskLib/Coord.h>
-#include <memory>
 
 Application::Application() {
-  m_ref.quit = FALSE;
+  ref_.quit = FALSE;
 }
 
 void Application::run() {
-  taskSetup();
-  iconbarSetup();
-  menuSetup();
-  while(!m_ref.quit) {
+  task_setup();
+  iconbar_setup();
+  menu_setup();
+  while(!ref_.quit) {
     Event_Poll();
   }
 }
 
-void Application::taskSetup() {
+void Application::task_setup() {
   Resource_Initialise("!Gauntlet");
   Template_Initialise();
   Template_LoadFile("Templates");
@@ -35,42 +36,42 @@ void Application::taskSetup() {
   Screen_CacheModeInfo();
 }
 
-void Application::iconbarSetup() {
+void Application::iconbar_setup() {
   icon_handle barIcon;
   barIcon = Icon_BarIcon("!gauntlet", iconbar_RIGHT);
-  Event_Claim(event_CLICK, -2, barIcon, click, (void*) &m_ref);
+  Event_Claim(event_CLICK, -2, barIcon, click, (void*) &ref_);
 }
 
-void Application::menuSetup() {
+void Application::menu_setup() {
   // Menu options are delimited by |
   char menu[] = ">Info |Quit";
   dialog2_block* info;
 
-  m_ref.menuhandle = Menu_New("Gauntlet", menu);
+  ref_.menu_handle = Menu_New("Gauntlet", menu);
 
   info = Dialog2_CreateDialogBlock( "ProgInfo", -1, -1, NULL, NULL, NULL);
-  Menu_Warn(m_ref.menuhandle, MenuOption::Info, TRUE, progInfo, (void*)info);
+  Menu_Warn(ref_.menu_handle, MenuOption::kInfo, TRUE, prog_info, (void*)info);
 }
 
 BOOL Application::click(event_pollblock* event, void* ref) {
   reference* ptr = static_cast<reference*>(ref);
   // Middle click brings up menu
   if(event->data.mouse.button.data.menu) {
-    Menu_Show(ptr->menuhandle, event->data.mouse.pos.x, -1);
-    Event_Claim(event_MENU, event_ANY, event_ANY, menuChoice, ref);
+    Menu_Show(ptr->menu_handle, event->data.mouse.pos.x, -1);
+    Event_Claim(event_MENU, event_ANY, event_ANY, menu_choice, ref);
   }
   // Single click opens window
   else if(event->data.mouse.button.data.select) {
-    windowOpen();
+    window_open();
   }
     return TRUE;
 }
 
-BOOL Application::menuChoice(event_pollblock* event, void* ref) {
+BOOL Application::menu_choice(event_pollblock* event, void* ref) {
   reference* ptr = static_cast<reference*>(ref);
   // Maps the menu option selected to the handler
   switch(event->data.selection[0]) {
-    case (MenuOption::Quit):
+    case (MenuOption::kQuit):
       Event_CloseDown();
       ptr->quit = TRUE;
       break;
@@ -78,12 +79,12 @@ BOOL Application::menuChoice(event_pollblock* event, void* ref) {
   return TRUE;  
 }
 
-BOOL Application::progInfo(event_pollblock* event, void* ref) {
+BOOL Application::prog_info(event_pollblock* event, void* ref) {
   Dialog2_OpenDialogMenuLeaf(event, static_cast<dialog2_block*>(ref));
   return TRUE;
 }
 
-void Application::windowOpen() {
+void Application::window_open() {
 
   // Start game to open SDL window
   std::unique_ptr<Game> game(new Game());

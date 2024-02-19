@@ -9,35 +9,34 @@
 using SpriteIndex = Sint16;
 
 enum class AnimationState {
-  RunningLeft,
-  RunningRight,
-  RunningUp,
-  RunningDown,
-  RunningUpLeft,
-  RunningDownLeft,
-  RunningUpRight,
-  RunningDownRight,
-  Jumping,
-  Attacking,
-  IdleUp,
-  IdleDown,
-  IdleLeft,
-  IdleRight,
-  IdleUpRight,
-  IdleUpLeft,
-  IdleDownRight,
-  IdleDownLeft
+  kRunningLeft,
+  kRunningRight,
+  kRunningUp,
+  kRunningDown,
+  kRunningUpLeft,
+  kRunningDownLeft,
+  kRunningUpRight,
+  kRunningDownRight,
+  kAttacking,
+  kIdleUp,
+  kIdleDown,
+  kIdleLeft,
+  kIdleRight,
+  kIdleUpRight,
+  kIdleUpLeft,
+  kIdleDownRight,
+  kIdleDownLeft
 };
 
 enum class SpriteClass : Sint16 {
-  Warrior = 0,
-  Valkyrie = 32,
-  Wizard = 64,
-  Archer = 96,
-  Ghost = 128,
-  Demon = 160,
-  DarkWizard = 192,
-  BlueGhost = 224
+  kWarrior = 0,
+  kValkyrie = 32,
+  kWizard = 64,
+  kArcher = 96,
+  kGhost = 128,
+  kDemon = 160,
+  kDarkWizard = 192,
+  kBlueGhost = 224
 };
 
 namespace std {
@@ -54,20 +53,20 @@ public:
 
   Sprite(SDL_Surface* spriteSheet);
 
-  void addAnimation(AnimationState state, std::vector<SpriteIndex> frames);
-  void setAnimation(AnimationState state);
-  void setSpriteClass(SpriteClass SpriteClass);
+  void add_animation(AnimationState state, std::vector<SpriteIndex> frames);
+  void set_animation(AnimationState state);
+  void set_sprite_class(SpriteClass SpriteClass);
   void update(); // To be called each frame to update animation
-  void render(SDL_Surface* targetSurface, int x, int y); // Render the current frame
+  void render(SDL_Surface* targetSurface, Sint16 x, Sint16 y); // Render the current frame
 
 private:
 
-  SDL_Surface* m_spriteSheet;
-  std::unordered_map<AnimationState, std::vector<SpriteIndex>> m_animations;
-  std::vector<SpriteIndex>* m_currentFrames = nullptr; // Pointer to the current vector of frames
-  size_t m_currentFrame = 0; // Index of the current frame in the current animation
-  AnimationState m_currentState;
-  Uint32 m_lastFrameTime = 0;
+  SDL_Surface* sprite_sheet_;
+  std::unordered_map<AnimationState, std::vector<SpriteIndex>> animations_;
+  std::vector<SpriteIndex>* current_frames_ = nullptr; // Pointer to the current vector of frames
+  size_t current_frame_ = 0; // Index of the current frame in the current animation
+  AnimationState current_state_;
+  Uint32 last_frame_time_ = 0;
 
-  SpriteClass m_spriteClass;
+  SpriteClass sprite_class_ = SpriteClass::kWarrior;
 };
