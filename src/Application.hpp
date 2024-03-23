@@ -5,7 +5,7 @@
 
 #include "Game.hpp"
 
-class Application {
+class Application{
 
   // Used for Event Handlers
   struct reference {

@@ -1,4 +1,5 @@
 #include "Game.hpp"
+#include "Sprite.hpp"
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
@@ -7,8 +8,9 @@
 Game::Game() 
   : screen_(init_screen()), 
     sprite_sheet_(init_sprite_sheet()), 
-    player_(sprite_sheet_, screen_), 
-    running_(false)
+    player_(), 
+    running_(false), 
+    renderer(sprite_sheet_, screen_) // Initialize Renderer
 {
   if (!sprite_sheet_) {
     // Sets screen to red on failure
@@ -70,7 +72,7 @@ void Game::render() {
   // Clear screen
   SDL_FillRect(screen_, nullptr, screen_clear_color_);
 
-  player_.render();
+  renderer.render(player_);
 
   // Update the screen    
   SDL_Flip(screen_);
@@ -82,6 +84,7 @@ void Game::run() {
 
   player_.set_position(200,200);
   player_.select_player_class(PlayerClass::kWizard);
+  player_.set_last_state(AnimationState::kIdleDown);
 
   // Game tick rate in ms, 20 ticks per second
   constexpr Uint32 kTickRate {1000/20};

@@ -4,7 +4,8 @@
 
 #include <SDL/SDL.h>
 
-#include "Character.hpp"
+#include "Actor.hpp"
+#include "Projectile.hpp"
 #include "Sprite.hpp"
 
 enum class PlayerClass{
@@ -14,15 +15,16 @@ enum class PlayerClass{
   kArcher
 };
 
-class Player : public Character {
+class Player : public Actor {
     
 public:
 
-  Player(SDL_Surface* spriteSheet, SDL_Surface* screen);
+  Player();
     
   void handle_inputs(const SDL_Event& event);
-  void select_player_class(PlayerClass player_class);
-  void update() override;
+  void select_player_class(PlayerClass player_class) noexcept;
+  // Projectile emit_projectile() override;
+  void update();
 
 private:
   static void init_animations(Sprite& sprite);

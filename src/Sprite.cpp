@@ -1,7 +1,6 @@
 #include "Sprite.hpp"
 
-Sprite::Sprite(SDL_Surface* sprite_sheet) 
-  : sprite_sheet_(sprite_sheet){
+Sprite::Sprite() {
 }
 
 void Sprite::add_animation(AnimationState state, std::vector<SpriteIndex> frames){
@@ -20,6 +19,10 @@ void Sprite::set_sprite_class(SpriteClass sprite_class){
   sprite_class_ = sprite_class;
 }
 
+SpriteClass Sprite::get_sprite_class() const noexcept{
+  return sprite_class_;
+}
+
 void Sprite::update(){
   Uint32 frame_time = SDL_GetTicks() - last_frame_time_;
   if (current_frames_ && !current_frames_->empty() && frame_time > 50) {
@@ -28,12 +31,12 @@ void Sprite::update(){
   }
 }
 
-void Sprite::render(SDL_Surface* targetSurface, Sint16 x, Sint16 y){
+SDL_Rect Sprite::get_frame() const{
+  SDL_Rect frame;
   if (current_frames_ && !current_frames_->empty()) {
     SpriteIndex& point = (*current_frames_)[current_frame_];
     SDL_Rect frame = {point, static_cast<Sint16>(sprite_class_), 32, 32};
-    SDL_Rect dest_rect = {x, y, 32, 32};
-    SDL_BlitSurface(sprite_sheet_, &frame, targetSurface, &dest_rect);
   }
+  return frame;
 }
  

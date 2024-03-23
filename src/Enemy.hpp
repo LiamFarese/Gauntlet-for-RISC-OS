@@ -1,6 +1,8 @@
 #pragma once
 
-#include "Character.hpp"
+#include <random>
+
+#include "Actor.hpp"
 #include "Player.hpp"
 #include "Projectile.hpp"
 
@@ -11,17 +13,20 @@ enum class EnemyClass{
   kBlueGhost
 };
 
-class Enemy: public Character {
+class Enemy: public Actor {
 
 public:
 
-  Enemy(SDL_Surface* spriteSheet, SDL_Surface* screen);
+  Enemy(EnemyClass enemy_class);
 
   void update(const Player& player);
   void set_enemy_class(EnemyClass enemy_class) noexcept;
-  Projectile emit_projectile() override;
+  // Projectile emit_projectile() override;
 
 private:
 
   EnemyClass enemy_class_;
+  bool thinking;
+  std::mt19937 engine{std::random_device{}()};
+  std::uniform_int_distribution<int> dist{1,4};
 };

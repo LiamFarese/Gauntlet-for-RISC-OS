@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SDL/SDL_video.h"
 #include <unordered_map>
 #include <vector>
 #include <functional> // For std::hash
@@ -9,14 +10,14 @@
 using SpriteIndex = Sint16;
 
 enum class AnimationState {
-  kRunningLeft,
-  kRunningRight,
-  kRunningUp,
-  kRunningDown,
-  kRunningUpLeft,
-  kRunningDownLeft,
-  kRunningUpRight,
-  kRunningDownRight,
+  kMovingLeft,
+  kMovingRight,
+  kMovingUp,
+  kMovingDown,
+  kMovingUpLeft,
+  kMovingDownLeft,
+  kMovingUpRight,
+  kMovingDownRight,
   kAttacking,
   kIdleUp,
   kIdleDown,
@@ -28,6 +29,7 @@ enum class AnimationState {
   kIdleDownLeft
 };
 
+// Number values represent index on the sprite sheet
 enum class SpriteClass : Sint16 {
   kWarrior = 0,
   kValkyrie = 32,
@@ -39,6 +41,8 @@ enum class SpriteClass : Sint16 {
   kBlueGhost = 224
 };
 
+
+// In c++11 enums cannot be used as hash keys so this hash funtion is needed
 namespace std {
   template<> struct hash<AnimationState> {
     size_t operator()(const AnimationState& state) const noexcept {
@@ -51,22 +55,22 @@ class Sprite {
 
 public:
 
-  Sprite(SDL_Surface* spriteSheet);
+  Sprite();
 
   void add_animation(AnimationState state, std::vector<SpriteIndex> frames);
   void set_animation(AnimationState state);
   void set_sprite_class(SpriteClass SpriteClass);
+  SpriteClass get_sprite_class() const noexcept;
   void update(); // To be called each frame to update animation
-  void render(SDL_Surface* targetSurface, Sint16 x, Sint16 y); // Render the current frame
+  SDL_Rect get_frame() const; // Render the current frame
 
 private:
 
-  SDL_Surface* sprite_sheet_;
   std::unordered_map<AnimationState, std::vector<SpriteIndex>> animations_;
-  std::vector<SpriteIndex>* current_frames_ = nullptr; // Pointer to the current vector of frames
+  std::vector<SpriteIndex>* current_frames_ = nullptr; // Pointer to the current animation vector
   size_t current_frame_ = 0; // Index of the current frame in the current animation
   AnimationState current_state_;
   Uint32 last_frame_time_ = 0;
 
-  SpriteClass sprite_class_ = SpriteClass::kWarrior;
+  SpriteClass sprite_class_;
 };

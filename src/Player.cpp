@@ -1,7 +1,8 @@
 #include "Player.hpp"
+#include "Actor.hpp"
 
-Player::Player(SDL_Surface* spriteSheet, SDL_Surface* screen) 
-  : Character(spriteSheet, screen){
+Player::Player() 
+  : Actor(){
     init_animations(sprite_);
 }
 
@@ -12,6 +13,7 @@ void Player::handle_inputs(const SDL_Event& event){
       case SDLK_a: move_left_ = true; break;
       case SDLK_s: move_down_ = true; break;
       case SDLK_d: move_right_ = true; break;
+      case SDLK_SPACE: 
       default: break;
     }
   } else if (event.type == SDL_KEYUP) {
@@ -25,7 +27,7 @@ void Player::handle_inputs(const SDL_Event& event){
   }
 }
 
-void Player::select_player_class(PlayerClass player_class){
+void Player::select_player_class(PlayerClass player_class) noexcept{
   player_class_ = player_class;
   switch (player_class_) {
     case PlayerClass::kWarrior: 
@@ -39,79 +41,91 @@ void Player::select_player_class(PlayerClass player_class){
   }
 }
 
+// Projectile Player::emit_projectile(){
+//   return Projectile{sprite_.get_sprite_sheet(), screen_, position_, direction_, sprite_.get_sprite_class()};
+// }
+
 void Player::update(){
   // Diagonal movement
   if (move_up_ && move_right_) {
     position_.y -= 4;
     position_.x += 4;
-    sprite_.set_animation(AnimationState::kRunningUpRight);
-    direction_ = AnimationState::kIdleUpRight;
+    sprite_.set_animation(AnimationState::kMovingUpRight);
+    last_state_ = AnimationState::kIdleUpRight;
+    direction_ = Direction::kUpRight;
   } else if (move_up_ && move_left_) {
     position_.y -= 4;
     position_.x -= 4;
-    sprite_.set_animation(AnimationState::kRunningUpLeft);
-    direction_ = AnimationState::kIdleUpLeft;
+    sprite_.set_animation(AnimationState::kMovingUpLeft);
+    last_state_ = AnimationState::kIdleUpLeft;
+    direction_ = Direction::kUpLeft;
   } else if (move_down_ && move_right_) {
     position_.y += 4;
     position_.x += 4;
-    sprite_.set_animation(AnimationState::kRunningDownRight);
-    direction_ = AnimationState::kIdleDownRight;
+    sprite_.set_animation(AnimationState::kMovingDownRight);
+    last_state_ = AnimationState::kIdleDownRight;
+    direction_ = Direction::kDownRight;
   } else if (move_down_ && move_left_) {
     position_.y += 4;
     position_.x -= 4;
-    sprite_.set_animation(AnimationState::kRunningDownLeft);
-    direction_ = AnimationState::kIdleDownLeft;
+    sprite_.set_animation(AnimationState::kMovingDownLeft);
+    last_state_ = AnimationState::kIdleDownLeft;
+    direction_ = Direction::kDownLeft;
   }
   // Single axis movement
   else if (move_up_) {
     position_.y -= 4;
-    sprite_.set_animation(AnimationState::kRunningUp);
-    direction_ = AnimationState::kIdleUp;
+    sprite_.set_animation(AnimationState::kMovingUp);
+    last_state_ = AnimationState::kIdleUp;
+    direction_ = Direction::kUp;
   } else if (move_down_) {
     position_.y += 4;
-    sprite_.set_animation(AnimationState::kRunningDown);
-    direction_ = AnimationState::kIdleDown;
+    sprite_.set_animation(AnimationState::kMovingDown);
+    last_state_ = AnimationState::kIdleDown;
+    direction_ = Direction::kDown;
   } else if (move_left_) {
     position_.x -= 4;
-    sprite_.set_animation(AnimationState::kRunningLeft);
-    direction_ = AnimationState::kIdleLeft;
+    sprite_.set_animation(AnimationState::kMovingLeft);
+    last_state_ = AnimationState::kIdleLeft;
+    direction_ = Direction::kLeft;
   } else if (move_right_) {
     position_.x += 4;
-    sprite_.set_animation(AnimationState::kRunningRight);
-    direction_ = AnimationState::kIdleRight;
+    sprite_.set_animation(AnimationState::kMovingRight);
+    last_state_ = AnimationState::kIdleRight;
+    direction_ = Direction::kRight;
   }
 
   if (!move_right_ && !move_down_ && !move_up_ && !move_left_) {
     // Set idle animation to last direction moved in
-    sprite_.set_animation(direction_);
+    sprite_.set_animation(last_state_);
   }
 
   sprite_.update();
 }
 
 void Player::init_animations(Sprite& sprite){
-  sprite.add_animation(AnimationState::kRunningUp, 
+  sprite.add_animation(AnimationState::kMovingUp, 
     std::vector<SpriteIndex>{0, 256, 512});
 
-  sprite.add_animation(AnimationState::kRunningUpRight, 
+  sprite.add_animation(AnimationState::kMovingUpRight, 
     std::vector<SpriteIndex>{32,288,544});
 
-  sprite.add_animation(AnimationState::kRunningRight,
+  sprite.add_animation(AnimationState::kMovingRight,
     std::vector<SpriteIndex>{64,320,576});
 
-  sprite.add_animation(AnimationState::kRunningDownRight,
+  sprite.add_animation(AnimationState::kMovingDownRight,
     std::vector<SpriteIndex>{96,352,608});
   
-  sprite.add_animation(AnimationState::kRunningDown, 
+  sprite.add_animation(AnimationState::kMovingDown, 
     std::vector<SpriteIndex>{128,384, 640});
 
-  sprite.add_animation(AnimationState::kRunningDownLeft,
+  sprite.add_animation(AnimationState::kMovingDownLeft,
     std::vector<SpriteIndex>{160,416,672});
 
-  sprite.add_animation(AnimationState::kRunningLeft,
+  sprite.add_animation(AnimationState::kMovingLeft,
     std::vector<SpriteIndex>{192,448,704});
   
-  sprite.add_animation(AnimationState::kRunningUpLeft,
+  sprite.add_animation(AnimationState::kMovingUpLeft,
     std::vector<SpriteIndex>{224,480,736});
     
   sprite.add_animation(AnimationState::kIdleUp, 

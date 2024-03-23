@@ -6,6 +6,7 @@
 #include <SDL/SDL_ttf.h>
 
 #include "Player.hpp"
+#include "Renderer.hpp"
 
 class Game {
 
@@ -20,6 +21,7 @@ public:
 private:
   SDL_Surface* screen_;
   SDL_Surface* sprite_sheet_;
+  Renderer renderer;
   Player player_;
 
   Uint32 screen_clear_color_;
