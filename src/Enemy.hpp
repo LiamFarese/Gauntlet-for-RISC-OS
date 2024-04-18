@@ -3,7 +3,6 @@
 #include <random>
 
 #include "Actor.hpp"
-#include "Player.hpp"
 #include "Projectile.hpp"
 
 enum class EnemyClass{
@@ -19,8 +18,8 @@ public:
 
   Enemy(EnemyClass enemy_class);
 
-  void update(const Player& player);
-  void set_enemy_class(EnemyClass enemy_class) noexcept;
+  void update(World& world);
+  // void set_enemy_class(EnemyClass enemy_class) noexcept;
   // Projectile emit_projectile() override;
 
 private:

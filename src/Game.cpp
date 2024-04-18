@@ -1,4 +1,5 @@
 #include "Game.hpp"
+#include "Actor.hpp"
 #include "Sprite.hpp"
 
 #include <SDL/SDL.h>
@@ -7,11 +8,10 @@
 
 Game::Game() 
   : screen_(init_screen()), 
-    sprite_sheet_(init_sprite_sheet()), 
-    player_(), 
-    running_(false), 
-    renderer(sprite_sheet_, screen_) // Initialize Renderer
-{
+    sprite_sheet_(init_sprite_sheet()),
+    renderer(sprite_sheet_, screen_),
+    running_(false) {
+
   if (!sprite_sheet_) {
     // Sets screen to red on failure
     screen_clear_color_ = SDL_MapRGB(screen_->format, 255, 0, 0);
@@ -26,7 +26,7 @@ Game::Game()
 
 SDL_Surface* Game::init_screen() {
   // Initialization logic for screen
-  return SDL_SetVideoMode(800, 600, 0, SDL_DOUBLEBUF | SDL_HWSURFACE | SDL_FULLSCREEN);
+  return SDL_SetVideoMode(1920, 1080, 0, SDL_DOUBLEBUF | SDL_HWSURFACE | SDL_FULLSCREEN);
 }
 
 SDL_Surface* Game::init_sprite_sheet() {
@@ -50,13 +50,9 @@ void Game::handle_events() {
     if (event_.type == SDL_QUIT || (event_.type == SDL_KEYDOWN && event_.key.keysym.sym == SDLK_ESCAPE)) {
       running_ = false;
     } else {
-      player_.handle_inputs(event_);
+      world_.player_->handle_inputs(event_);
     }
   }
-}
-
-void Game::update() {
-  player_.update();
 }
 
 void Game::display_text(std::stringstream& message_string, SDL_Rect location) {
@@ -72,7 +68,11 @@ void Game::render() {
   // Clear screen
   SDL_FillRect(screen_, nullptr, screen_clear_color_);
 
-  renderer.render(player_);
+  renderer.render(*world_.player_);
+
+  for(auto& p: world_.player_projectiles_){
+    renderer.render(p);
+  }
 
   // Update the screen    
   SDL_Flip(screen_);
@@ -82,9 +82,9 @@ void Game::run() {
 
   running_ = true;
 
-  player_.set_position(200,200);
-  player_.select_player_class(PlayerClass::kWizard);
-  player_.set_last_state(AnimationState::kIdleDown);
+  world_.player_->set_position(200,200);
+  world_.player_->select_player_class(PlayerClass::kWizard);
+  world_.player_->last_state_ = AnimationState::kIdleDown;
 
   // Game tick rate in ms, 20 ticks per second
   constexpr Uint32 kTickRate {1000/20};
@@ -106,7 +106,7 @@ void Game::run() {
     handle_events();
 
     while(accumulator > kTickRate) {
-      update();
+      world_.update();
       accumulator -= kTickRate;
     }
 

@@ -1,51 +1,50 @@
 #include "Player.hpp"
-#include "Actor.hpp"
+#include "SDL/SDL_timer.h"
+
+#include <memory>
 
 Player::Player() 
-  : Actor(){
+  : Actor() {
     init_animations(sprite_);
 }
 
-void Player::handle_inputs(const SDL_Event& event){
+void Player::select_player_class(PlayerClass player_class) noexcept {
+  player_class_ = player_class;
+  switch (player_class_) {
+    case PlayerClass::kWarrior: 
+      sprite_.sprite_class_ = SpriteClass::kWarrior; break;
+    case PlayerClass::kValkyrie: 
+      sprite_.sprite_class_ = SpriteClass::kValkyrie; break;
+    case PlayerClass::kWizard: 
+      sprite_.sprite_class_ = SpriteClass::kWizard; break;
+    case PlayerClass::kArcher: 
+      sprite_.sprite_class_ = SpriteClass::kArcher; break;
+  }
+}
+
+void Player::handle_inputs(const SDL_Event& event) {
   if (event.type == SDL_KEYDOWN) {
     switch (event.key.keysym.sym) {
-      case SDLK_w: move_up_ = true; break;
-      case SDLK_a: move_left_ = true; break;
-      case SDLK_s: move_down_ = true; break;
-      case SDLK_d: move_right_ = true; break;
-      case SDLK_SPACE: 
+      case SDLK_w:     move_up_    = true; break;
+      case SDLK_a:     move_left_  = true; break;
+      case SDLK_s:     move_down_  = true; break;
+      case SDLK_d:     move_right_ = true; break;
+      case SDLK_SPACE: firing_     = true; break;
       default: break;
     }
   } else if (event.type == SDL_KEYUP) {
     switch (event.key.keysym.sym) {
-      case SDLK_w: move_up_ = false; break;
-      case SDLK_a: move_left_ = false; break;
-      case SDLK_s: move_down_ = false; break;
-      case SDLK_d: move_right_ = false; break;
+      case SDLK_w:     move_up_    = false; break;
+      case SDLK_a:     move_left_  = false; break;
+      case SDLK_s:     move_down_  = false; break;
+      case SDLK_d:     move_right_ = false; break;
+      case SDLK_SPACE: firing_     = false; break;
       default: break;
     }
   }
 }
 
-void Player::select_player_class(PlayerClass player_class) noexcept{
-  player_class_ = player_class;
-  switch (player_class_) {
-    case PlayerClass::kWarrior: 
-      sprite_.set_sprite_class(SpriteClass::kWarrior); break;
-    case PlayerClass::kValkyrie: 
-      sprite_.set_sprite_class(SpriteClass::kValkyrie); break;
-    case PlayerClass::kWizard: 
-      sprite_.set_sprite_class(SpriteClass::kWizard); break;
-    case PlayerClass::kArcher: 
-      sprite_.set_sprite_class(SpriteClass::kArcher); break;
-  }
-}
-
-// Projectile Player::emit_projectile(){
-//   return Projectile{sprite_.get_sprite_sheet(), screen_, position_, direction_, sprite_.get_sprite_class()};
-// }
-
-void Player::update(){
+void Player::update(World& world) {
   // Diagonal movement
   if (move_up_ && move_right_) {
     position_.y -= 4;
@@ -95,6 +94,12 @@ void Player::update(){
     direction_ = Direction::kRight;
   }
 
+  Uint32 current = SDL_GetTicks() - last_fire_; 
+  if(firing_ && current > 200) {
+    world.player_projectiles_.push_back(std::move(Projectile{position_, direction_, sprite_.sprite_class_}));
+    last_fire_ = SDL_GetTicks();
+  }
+
   if (!move_right_ && !move_down_ && !move_up_ && !move_left_) {
     // Set idle animation to last direction moved in
     sprite_.set_animation(last_state_);
@@ -103,7 +108,7 @@ void Player::update(){
   sprite_.update();
 }
 
-void Player::init_animations(Sprite& sprite){
+void Player::init_animations(Sprite& sprite) {
   sprite.add_animation(AnimationState::kMovingUp, 
     std::vector<SpriteIndex>{0, 256, 512});
 

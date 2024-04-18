@@ -16,17 +16,21 @@ enum class Direction {
   kDownRight
 };
 
+class World;
+
 class Projectile{
 
 public:
-  Projectile(SDL_Surface* sprite_sheet, SDL_Surface* screen, SDL_Rect location_, Direction direction, SpriteClass sprite_class);
+
+  Projectile(SDL_Rect location_, Direction direction, SpriteClass sprite_class);
+
   void update();
-  void render();
+
+  SDL_Rect position_;
+  Sprite sprite_;
 
 private:
-  Sprite sprite_;
-  SDL_Surface* screen_;
-  SDL_Rect position_;
+
   Direction direction_;
   SpriteClass weapon_;
 };

@@ -1,35 +1,38 @@
 #pragma once
 
+#include "Projectile.hpp"
 #include <SDL/SDL.h>
 
 
+class World;
+
 #include "Sprite.hpp"
-#include "Projectile.hpp"
 
 class Actor {
 
 public:
 
   Actor();
+  virtual ~Actor() = default;
 
   virtual void set_position(Sint16 x, Sint16 y) noexcept;
-  virtual SDL_Rect get_position() const noexcept;
-  virtual void set_last_state(AnimationState state) noexcept;
-  // virtual Projectile emit_projectile() = 0;
+  virtual void update(World& world) = 0;
   virtual SDL_Rect get_frame() const;
 
-
-protected:
-
-  SDL_Surface* screen_;
-  SDL_Rect position_;
-  Sprite sprite_;
-  AnimationState last_state_;
-  Direction direction_;
-  
   bool move_up_;
   bool move_down_;
   bool move_left_;
   bool move_right_;
+  bool firing_;
 
+  Uint32 fire_rate_ = 100;
+  Uint32 last_fire_ = 0;
+
+  SDL_Rect position_;
+  AnimationState last_state_;
+
+protected:
+
+  Sprite sprite_;
+  Direction direction_;  
 };

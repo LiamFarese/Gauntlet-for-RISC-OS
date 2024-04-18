@@ -1,6 +1,5 @@
 #pragma once
 
-#include "SDL/SDL_video.h"
 #include <unordered_map>
 #include <vector>
 #include <functional> // For std::hash
@@ -55,14 +54,16 @@ class Sprite {
 
 public:
 
-  Sprite();
+  Sprite() = default;
+  Sprite(SpriteClass sprite_class);
 
   void add_animation(AnimationState state, std::vector<SpriteIndex> frames);
   void set_animation(AnimationState state);
-  void set_sprite_class(SpriteClass SpriteClass);
-  SpriteClass get_sprite_class() const noexcept;
   void update(); // To be called each frame to update animation
   SDL_Rect get_frame() const; // Render the current frame
+
+  SpriteClass sprite_class_;
+
 
 private:
 
@@ -72,5 +73,4 @@ private:
   AnimationState current_state_;
   Uint32 last_frame_time_ = 0;
 
-  SpriteClass sprite_class_;
 };
