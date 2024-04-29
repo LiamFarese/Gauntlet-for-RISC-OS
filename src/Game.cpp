@@ -1,5 +1,6 @@
 #include "Game.hpp"
 #include "Actor.hpp"
+#include "Map.hpp"
 #include "Sprite.hpp"
 
 #include <SDL/SDL.h>
@@ -9,7 +10,8 @@
 Game::Game() 
   : screen_(init_screen()), 
     sprite_sheet_(init_sprite_sheet()),
-    renderer(sprite_sheet_, screen_),
+    background_(init_background()),
+    renderer(sprite_sheet_, background_, screen_),
     running_(false) {
 
   if (!sprite_sheet_) {
@@ -26,12 +28,20 @@ Game::Game()
 
 SDL_Surface* Game::init_screen() {
   // Initialization logic for screen
-  return SDL_SetVideoMode(1920, 1080, 0, SDL_DOUBLEBUF | SDL_HWSURFACE | SDL_FULLSCREEN);
+  return SDL_SetVideoMode(960, 960, 0, SDL_DOUBLEBUF | SDL_HWSURFACE | SDL_FULLSCREEN);
 }
 
 SDL_Surface* Game::init_sprite_sheet() {
   // Initialization logic for spriteSheet
   SDL_Surface* image = IMG_Load("<!Gauntlet$Dir>.entities");
+  SDL_Surface* formatted_image = SDL_DisplayFormatAlpha(image);
+  SDL_FreeSurface(image);
+  return formatted_image;
+}
+
+SDL_Surface* Game::init_background() {
+  // Initialization logic for spriteSheet
+  SDL_Surface* image = IMG_Load("<!Gauntlet$Dir>.background");
   SDL_Surface* formatted_image = SDL_DisplayFormatAlpha(image);
   SDL_FreeSurface(image);
   return formatted_image;
@@ -68,12 +78,17 @@ void Game::render() {
   // Clear screen
   SDL_FillRect(screen_, nullptr, screen_clear_color_);
 
+  renderer.render(world_.map_);
   renderer.render(*world_.player_);
 
-  for(auto& p: world_.player_projectiles_){
-    renderer.render(p);
+  for(const auto& enemy: world_.enemies_){
+    renderer.render(enemy);
   }
 
+  for(const auto& p: world_.player_projectiles_){
+    renderer.render(p);
+  }
+  
   // Update the screen    
   SDL_Flip(screen_);
 }
@@ -83,22 +98,25 @@ void Game::run() {
   running_ = true;
 
   world_.player_->set_position(200,200);
-  world_.player_->select_player_class(PlayerClass::kWizard);
+  world_.player_->select_player_class(PlayerClass::kElf);
   world_.player_->last_state_ = AnimationState::kIdleDown;
+  world_.load_level(1);
 
   // Game tick rate in ms, 20 ticks per second
   constexpr Uint32 kTickRate {1000/20};
 
   // Time at the start of the last game loop
-  Uint32 previous = SDL_GetTicks();
+  Uint32 previous {SDL_GetTicks()};
 
   // Discrepancy between game tick rate and frame rate
-  Uint32 accumulator = 0;
+  Uint32 accumulator {0};
+  Uint32 current {};
+  Uint32 frame_time {};
   
   while (running_) {
-    Uint32 current = SDL_GetTicks();
+    current = SDL_GetTicks();
     // Time the last frame took to render
-    Uint32 frame_time = current - previous;
+    frame_time = current - previous;
     previous = current;
 
     accumulator += frame_time;

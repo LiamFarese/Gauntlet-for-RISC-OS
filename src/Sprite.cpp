@@ -1,15 +1,11 @@
 #include "Sprite.hpp"
 
 Sprite::Sprite(SpriteClass sprite_class)
-  : sprite_class_(sprite_class){
+  : sprite_class_(sprite_class) {
 
 }
 
-void Sprite::add_animation(AnimationState state, std::vector<SpriteIndex> frames){
-  animations_[state] = frames;
-}
-
-void Sprite::set_animation(AnimationState state){
+void Sprite::set_animation(AnimationState state) {
   if (current_state_ != state) {
     current_state_ = state;
     current_frames_ = &animations_[state];
@@ -17,7 +13,7 @@ void Sprite::set_animation(AnimationState state){
   }
 }
 
-void Sprite::update(){
+void Sprite::update() {
   Uint32 frame_time = SDL_GetTicks() - last_frame_time_;
   if (current_frames_ && !current_frames_->empty() && frame_time > 50) {
     current_frame_ = (current_frame_ + 1) % current_frames_->size();
@@ -33,4 +29,5 @@ SDL_Rect Sprite::get_frame() const {
   // Handle case where current_frames_ is null or empty
   return {0, 0, 0, 0};
 }
+
  

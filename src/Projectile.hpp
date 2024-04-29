@@ -24,7 +24,7 @@ public:
 
   Projectile(SDL_Rect location_, Direction direction, SpriteClass sprite_class);
 
-  void update();
+  void update(World& world);
 
   SDL_Rect position_;
   Sprite sprite_;

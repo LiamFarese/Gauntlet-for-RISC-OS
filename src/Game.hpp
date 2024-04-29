@@ -5,6 +5,7 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_ttf.h>
 
+#include "SDL/SDL_video.h"
 #include "World.hpp"
 #include "Player.hpp"
 #include "Renderer.hpp"
@@ -22,6 +23,7 @@ public:
 private:
   SDL_Surface* screen_;
   SDL_Surface* sprite_sheet_;
+  SDL_Surface* background_;
   Renderer renderer;
   World world_;
 
@@ -41,5 +43,6 @@ private:
   // Helper methods for initialization
   SDL_Surface* init_screen();
   SDL_Surface* init_sprite_sheet();
+  SDL_Surface* init_background();
 
 };

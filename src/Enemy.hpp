@@ -18,7 +18,7 @@ public:
 
   Enemy(EnemyClass enemy_class);
 
-  void update(World& world);
+  void update(World& world) override;
   // void set_enemy_class(EnemyClass enemy_class) noexcept;
   // Projectile emit_projectile() override;
 

@@ -17,7 +17,6 @@ enum class AnimationState {
   kMovingDownLeft,
   kMovingUpRight,
   kMovingDownRight,
-  kAttacking,
   kIdleUp,
   kIdleDown,
   kIdleLeft,
@@ -33,11 +32,12 @@ enum class SpriteClass : Sint16 {
   kWarrior = 0,
   kValkyrie = 32,
   kWizard = 64,
-  kArcher = 96,
+  kElf = 96,
   kGhost = 128,
   kDemon = 160,
-  kDarkWizard = 192,
-  kBlueGhost = 224
+  kBoxer = 192,
+  kDarkWizard = 224,
+  kBlueGhost = 256
 };
 
 
@@ -57,20 +57,36 @@ public:
   Sprite() = default;
   Sprite(SpriteClass sprite_class);
 
-  void add_animation(AnimationState state, std::vector<SpriteIndex> frames);
   void set_animation(AnimationState state);
   void update(); // To be called each frame to update animation
   SDL_Rect get_frame() const; // Render the current frame
 
   SpriteClass sprite_class_;
 
-
 private:
 
-  std::unordered_map<AnimationState, std::vector<SpriteIndex>> animations_;
+  std::unordered_map<AnimationState, std::vector<SpriteIndex>> animations_ {
+    {AnimationState::kMovingUp,        {0, 256, 512}},
+    {AnimationState::kMovingUpRight,   {32,288,544}},
+    {AnimationState::kMovingRight,     {64,320,576}},
+    {AnimationState::kMovingDownRight, {96,352,608}},
+    {AnimationState::kMovingDown,      {128,384, 640}},
+    {AnimationState::kMovingDownLeft,  {160,416,672}},
+    {AnimationState::kMovingLeft,      {192,448,704}},
+    {AnimationState::kMovingUpLeft,    {224,480,736}},
+    {AnimationState::kIdleUp,          {0}},
+    {AnimationState::kIdleUpRight,     {32}},
+    {AnimationState::kIdleRight,      {64}},
+    {AnimationState::kIdleDownRight,  {96}},
+    {AnimationState::kIdleDown,       {128}},
+    {AnimationState::kIdleDownLeft,   {160}},
+    {AnimationState::kIdleLeft,       {192}},
+    {AnimationState::kIdleUpLeft,     {224}}
+  };
+
   std::vector<SpriteIndex>* current_frames_ = nullptr; // Pointer to the current animation vector
-  size_t current_frame_ = 0; // Index of the current frame in the current animation
+  size_t current_frame_ {0}; // Index of the current frame in the current animation
   AnimationState current_state_;
-  Uint32 last_frame_time_ = 0;
+  Uint32 last_frame_time_ {0};
 
 };

@@ -1,21 +1,26 @@
 #pragma once
 
-#include "Projectile.hpp"
-#include "SDL/SDL.h"
+#include <SDL/SDL.h>
 
+#include "Map.hpp"
+#include "Projectile.hpp"
 #include "Actor.hpp"
+#include "SDL/SDL_video.h"
 
 class Renderer {
 
 public:
 
-  Renderer(SDL_Surface* sprite_sheet, SDL_Surface* screen);
+  Renderer(SDL_Surface* sprite_sheet, SDL_Surface* background, SDL_Surface* screen);
 
   void render(const Actor& actor);
   void render(const Projectile& projectile);
+  void render(const Map& map);
 
 private:
-  bool isEqualToZeroRect(const SDL_Rect& rect);
+
+  bool is_zero(const SDL_Rect& rect);
   SDL_Surface* sprite_sheet_;
+  SDL_Surface* background_;
   SDL_Surface* screen_;
 };
