@@ -2,7 +2,6 @@
 
 Sprite::Sprite(SpriteClass sprite_class)
   : sprite_class_(sprite_class) {
-
 }
 
 void Sprite::set_animation(AnimationState state) {
@@ -22,12 +21,12 @@ void Sprite::update() {
 }
 
 SDL_Rect Sprite::get_frame() const {
+  SDL_Rect sprite{0,0,0,0};
   if (current_frames_ && !current_frames_->empty()) {
-    SpriteIndex& point = (*current_frames_)[current_frame_];
-    return {point, static_cast<Sint16>(sprite_class_), 32, 32};
+    Sint16& point = (*current_frames_)[current_frame_];
+    sprite = {point, static_cast<Sint16>(sprite_class_), 32, 32};
   }
-  // Handle case where current_frames_ is null or empty
-  return {0, 0, 0, 0};
+  return sprite;
 }
 
  

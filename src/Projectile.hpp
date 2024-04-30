@@ -18,7 +18,7 @@ enum class Direction {
 
 class World;
 
-class Projectile{
+class Projectile {
 
 public:
 
@@ -27,10 +27,11 @@ public:
   void update(World& world);
 
   SDL_Rect position_;
+  Direction direction_;
   Sprite sprite_;
 
 private:
 
-  Direction direction_;
-  SpriteClass weapon_;
+  void move(int pixels);
+
 };

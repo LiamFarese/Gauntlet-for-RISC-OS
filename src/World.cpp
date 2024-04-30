@@ -11,10 +11,8 @@ World::~World() {
 
 void World::load_level(int level_id){
   map_ = Level::load_level(level_id);
-  Enemy enemy {EnemyClass::kDarkWizard};
-  enemy.set_position(400, 400);
-  enemy.sprite_.sprite_class_ = SpriteClass::kDarkWizard;
-  enemy.sprite_.set_animation(AnimationState::kIdleDown);
+  player_->position_ = map_.player_position;
+  Enemy enemy {EnemyClass::kDarkWizard, {480, 96}};
   enemies_.push_back(std::move(enemy));
   // TODO:
   // Load position of entities
@@ -65,25 +63,24 @@ bool World::wall_collision(const Actor& a) const {
   int y_index = a.position_.y / 32;
   int x_index = a.position_.x / 32;
 
-  std::vector<const std::vector<Tile>*> collided_grid;
+  std::vector<const std::vector<bool>*> collided_grid;
 
-  Tile collided_tile {};
-  std::vector<Tile> collided_tiles {};
+  std::vector<bool> collided_tiles {};
 
   if (y_overshot != 0) {
     collided_grid.push_back(&map_.tile_map[y_index + 1]);
   }
   collided_grid.push_back(&map_.tile_map[y_index]);
 
-  for(auto& row : collided_grid){
+  for(const auto& row : collided_grid){
     collided_tiles.push_back((*row)[x_index]);
     if (x_overshot != 0){
       collided_tiles.push_back((*row)[x_index + 1]);
     }
   }
 
-  for(auto& tile : collided_tiles){
-    if(tile.is_collidable == true){
+  for(const auto& tile : collided_tiles){
+    if(tile){
       return true;
     }
   }
@@ -98,25 +95,24 @@ bool World::wall_collision(const Projectile& p) const {
   int y_index = p.position_.y / 32;
   int x_index = p.position_.x / 32;
 
-  std::vector<const std::vector<Tile>*> collided_grid;
+  std::vector<const std::vector<bool>*> collided_grid;
 
-  Tile collided_tile {};
-  std::vector<Tile> collided_tiles {};
+  std::vector<bool> collided_tiles {};
 
   collided_grid.push_back(&map_.tile_map[y_index]);
   if (y_overshot != 0) {
     collided_grid.push_back(&map_.tile_map[y_index + 1]);
   }
 
-  for(auto& row : collided_grid){
+  for(const auto& row : collided_grid){
     collided_tiles.push_back((*row)[x_index]);
     if (x_overshot != 0){
       collided_tiles.push_back((*row)[x_index + 1]);
     }
   }
 
-  for(auto& tile : collided_tiles){
-    if(tile.is_collidable == true){
+  for(const auto& tile : collided_tiles){
+    if(tile){
       return true;
     }
   }

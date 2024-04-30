@@ -6,8 +6,6 @@
 
 #include <SDL/SDL.h>
 
-using SpriteIndex = Sint16;
-
 enum class AnimationState {
   kMovingLeft,
   kMovingRight,
@@ -24,7 +22,12 @@ enum class AnimationState {
   kIdleUpRight,
   kIdleUpLeft,
   kIdleDownRight,
-  kIdleDownLeft
+  kIdleDownLeft,
+  kAxe,
+  KSword,
+  kFireball,
+  kArrow,
+  kDarkFireball
 };
 
 // Number values represent index on the sprite sheet
@@ -65,7 +68,7 @@ public:
 
 private:
 
-  std::unordered_map<AnimationState, std::vector<SpriteIndex>> animations_ {
+  std::unordered_map<AnimationState, std::vector<Sint16>> animations_ {
     {AnimationState::kMovingUp,        {0, 256, 512}},
     {AnimationState::kMovingUpRight,   {32,288,544}},
     {AnimationState::kMovingRight,     {64,320,576}},
@@ -81,10 +84,11 @@ private:
     {AnimationState::kIdleDown,       {128}},
     {AnimationState::kIdleDownLeft,   {160}},
     {AnimationState::kIdleLeft,       {192}},
-    {AnimationState::kIdleUpLeft,     {224}}
+    {AnimationState::kIdleUpLeft,     {224}},
+    {AnimationState::kAxe,            {768,800,832,864,896, 928, 960, 992}}
   };
 
-  std::vector<SpriteIndex>* current_frames_ = nullptr; // Pointer to the current animation vector
+  std::vector<Sint16>* current_frames_ = nullptr; // Pointer to the current animation vector
   size_t current_frame_ {0}; // Index of the current frame in the current animation
   AnimationState current_state_;
   Uint32 last_frame_time_ {0};

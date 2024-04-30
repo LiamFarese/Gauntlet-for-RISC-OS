@@ -1,8 +1,22 @@
 #include "Enemy.hpp"
 #include "Sprite.hpp"
 
-Enemy::Enemy(EnemyClass enemy_class)
+Enemy::Enemy(EnemyClass enemy_class, SDL_Rect position)
   :enemy_class_(enemy_class){
+    switch (enemy_class) {
+      case EnemyClass::kGhost:
+        sprite_.sprite_class_ = SpriteClass::kGhost; break;
+      case EnemyClass::kDemon:
+        sprite_.sprite_class_ = SpriteClass::kDemon; break;
+      case EnemyClass::kBoxer:
+        sprite_.sprite_class_ = SpriteClass::kBoxer; break;
+      case EnemyClass::kDarkWizard:
+        sprite_.sprite_class_ = SpriteClass::kDarkWizard; break;
+      case EnemyClass::kBlueGhost:
+        sprite_.sprite_class_ = SpriteClass::kBlueGhost; break;
+    }
+    position_ = position;
+    sprite_.set_animation(AnimationState::kIdleDown);
 };
 
 // void Enemy::update(const Player& player){
@@ -16,5 +30,6 @@ Enemy::Enemy(EnemyClass enemy_class)
 // }
 
 void Enemy::update(World& world){
+  last_position_ = position_;
   sprite_.update();
 };

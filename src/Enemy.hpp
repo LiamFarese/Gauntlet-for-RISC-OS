@@ -8,6 +8,7 @@
 enum class EnemyClass{
   kGhost,
   kDemon,
+  kBoxer,
   kDarkWizard,
   kBlueGhost
 };
@@ -16,7 +17,7 @@ class Enemy: public Actor {
 
 public:
 
-  Enemy(EnemyClass enemy_class);
+  Enemy(EnemyClass enemy_class, SDL_Rect position);
 
   void update(World& world) override;
   // void set_enemy_class(EnemyClass enemy_class) noexcept;

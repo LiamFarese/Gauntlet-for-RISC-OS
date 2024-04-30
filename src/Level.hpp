@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "Enemy.hpp"
 #include "Sprite.hpp"
 
 enum class FloorType : Sint16 {
@@ -37,17 +38,13 @@ enum class TileType : Sint16 {
   BottomLeftCorner = 64
 };
 
-struct Tile {
-  SDL_Rect position;
-  SDL_Rect sprite;
-  bool is_collidable;
-};
-
-struct Map {
-  std::vector<std::vector<Tile>> tile_map;
-};
-
 namespace Level {
+
+  struct Map {
+    std::vector<std::vector<bool>> tile_map;
+    SDL_Rect player_position;
+    std::vector<Enemy> enemy_positions;
+  };
 
   Map load_level(int level_number);
 

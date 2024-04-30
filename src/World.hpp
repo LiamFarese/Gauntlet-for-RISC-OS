@@ -6,7 +6,7 @@
 #include <SDL/SDL.h>
 
 
-#include "Map.hpp"
+#include "Level.hpp"
 #include "Player.hpp"
 #include "Enemy.hpp"
 #include "Projectile.hpp"
@@ -27,8 +27,7 @@ public:
   std::vector<Enemy> enemies_;
   std::vector<Projectile> enemy_projectiles_;
   std::vector<Projectile> player_projectiles_;
-  Map map_;
-
+  Level::Map map_;
   Player* player_;
 
 

@@ -4,8 +4,9 @@
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_ttf.h>
+#include <SDL/SDL_image.h>
 
-#include "SDL/SDL_video.h"
+
 #include "World.hpp"
 #include "Player.hpp"
 #include "Renderer.hpp"
@@ -21,15 +22,9 @@ public:
   void run();
 
 private:
-  SDL_Surface* screen_;
-  SDL_Surface* sprite_sheet_;
-  SDL_Surface* background_;
+
   Renderer renderer;
   World world_;
-
-  Uint32 screen_clear_color_;
-  SDL_Color text_color_ { 255, 255, 255 };
-  TTF_Font* font_;
   
   bool running_;
   SDL_Event event_;
@@ -38,11 +33,11 @@ private:
 
   void display_text(std::stringstream& message_string, SDL_Rect location);
 
+  void load_level(int level_id);
+
   void render();
 
   // Helper methods for initialization
-  SDL_Surface* init_screen();
-  SDL_Surface* init_sprite_sheet();
-  SDL_Surface* init_background();
+  Renderer init_renderer();
 
 };

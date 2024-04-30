@@ -1,56 +1,23 @@
 #include "Game.hpp"
-#include "Actor.hpp"
-#include "Map.hpp"
-#include "Sprite.hpp"
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
-#include <SDL/SDL_ttf.h>
 
 Game::Game() 
-  : screen_(init_screen()), 
-    sprite_sheet_(init_sprite_sheet()),
-    background_(init_background()),
-    renderer(sprite_sheet_, background_, screen_),
+  : renderer(init_renderer()),
     running_(false) {
-
-  if (!sprite_sheet_) {
-    // Sets screen to red on failure
-    screen_clear_color_ = SDL_MapRGB(screen_->format, 255, 0, 0);
-  } else {
-    // Sets screen to green on success
-    screen_clear_color_ = SDL_MapRGB(screen_->format, 66, 245, 203);
-  }
-
-  TTF_Init();
-  font_ = TTF_OpenFont("<!Gauntlet$Dir>.Font", 28);
 }
 
-SDL_Surface* Game::init_screen() {
+Renderer Game::init_renderer() {
   // Initialization logic for screen
-  return SDL_SetVideoMode(960, 960, 0, SDL_DOUBLEBUF | SDL_HWSURFACE | SDL_FULLSCREEN);
-}
-
-SDL_Surface* Game::init_sprite_sheet() {
-  // Initialization logic for spriteSheet
   SDL_Surface* image = IMG_Load("<!Gauntlet$Dir>.entities");
-  SDL_Surface* formatted_image = SDL_DisplayFormatAlpha(image);
+  SDL_Surface* sprite_sheet = SDL_DisplayFormatAlpha(image);
   SDL_FreeSurface(image);
-  return formatted_image;
-}
 
-SDL_Surface* Game::init_background() {
-  // Initialization logic for spriteSheet
-  SDL_Surface* image = IMG_Load("<!Gauntlet$Dir>.background");
-  SDL_Surface* formatted_image = SDL_DisplayFormatAlpha(image);
-  SDL_FreeSurface(image);
-  return formatted_image;
+  SDL_Surface* screen =  SDL_SetVideoMode(960, 640, 0, SDL_DOUBLEBUF | SDL_HWSURFACE | SDL_FULLSCREEN);
+
+  return {sprite_sheet, screen};
 }
 
 Game::~Game() {
-  TTF_CloseFont(font_);
-  SDL_FreeSurface(sprite_sheet_);
-  SDL_FreeSurface(screen_);
   TTF_Quit();
   SDL_Quit();
 }
@@ -65,20 +32,32 @@ void Game::handle_events() {
   }
 }
 
-void Game::display_text(std::stringstream& message_string, SDL_Rect location) {
-  SDL_Surface* message = TTF_RenderText_Solid(font_, message_string.str().c_str(), text_color_);
+void Game::load_level(int level_id){
+  std::string level_name {};
+  switch(level_id){
+    case (0):
+      level_name = "<!Gauntlet$Dir>.training1"; break;
+  }
+  SDL_Surface* image = IMG_Load(level_name.c_str());
 
-  SDL_FillRect(screen_, nullptr, screen_clear_color_);
-  SDL_BlitSurface(message, nullptr, screen_, &location);
-  SDL_Flip(screen_);
-  SDL_FreeSurface( message );
+  SDL_Surface* formatted_image = SDL_DisplayFormatAlpha(image);
+  SDL_FreeSurface(image);
+  renderer.level_background_ = formatted_image;
+
+  world_.player_->select_player_class(PlayerClass::kElf);
+  world_.player_->last_state_ = AnimationState::kIdleDown;
+  world_.load_level(level_id);
 }
 
 void Game::render() {
-  // Clear screen
-  SDL_FillRect(screen_, nullptr, screen_clear_color_);
 
-  renderer.render(world_.map_);
+  Uint32 last_frame = SDL_GetTicks();
+
+  // Clear screen
+  renderer.clear();
+
+  renderer.render_map();
+
   renderer.render(*world_.player_);
 
   for(const auto& enemy: world_.enemies_){
@@ -88,19 +67,20 @@ void Game::render() {
   for(const auto& p: world_.player_projectiles_){
     renderer.render(p);
   }
-  
+
+  std::stringstream frame_time;
+  frame_time << "frame time: " << SDL_GetTicks()-last_frame << "ms";
+  renderer.render_text(frame_time, {700,0});
+
   // Update the screen    
-  SDL_Flip(screen_);
+  renderer.render_frame();
 }
 
 void Game::run() {
 
   running_ = true;
 
-  world_.player_->set_position(200,200);
-  world_.player_->select_player_class(PlayerClass::kElf);
-  world_.player_->last_state_ = AnimationState::kIdleDown;
-  world_.load_level(1);
+  load_level(0);
 
   // Game tick rate in ms, 20 ticks per second
   constexpr Uint32 kTickRate {1000/20};
@@ -110,8 +90,8 @@ void Game::run() {
 
   // Discrepancy between game tick rate and frame rate
   Uint32 accumulator {0};
-  Uint32 current {};
-  Uint32 frame_time {};
+  Uint32 current     {0};
+  Uint32 frame_time  {0};
   
   while (running_) {
     current = SDL_GetTicks();
