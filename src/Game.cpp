@@ -2,8 +2,8 @@
 
 
 Game::Game() 
-  : renderer(init_renderer()),
-    running_(false) {
+  : running_(false),
+    renderer(init_renderer()) {
 }
 
 Renderer Game::init_renderer() {
@@ -113,7 +113,7 @@ void Game::run() {
 
   std::stringstream closing_message;
   closing_message << "Game Closing, time since elapsed : " << SDL_GetTicks();
-  display_text(closing_message, {150, 300});
+  renderer.render_text(closing_message, {150, 300});
 
   SDL_Delay(1000);
 }

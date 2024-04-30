@@ -10,7 +10,7 @@
 #include "Sprite.hpp"
 #include "World.hpp"
 
-enum class PlayerClass{
+enum class PlayerClass {
   kWarrior,
   kValkyrie,
   kWizard,

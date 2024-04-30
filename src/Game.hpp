@@ -23,15 +23,13 @@ public:
 
 private:
 
+  bool running_;
   Renderer renderer;
   World world_;
-  
-  bool running_;
+
   SDL_Event event_;
 
   void handle_events();
-
-  void display_text(std::stringstream& message_string, SDL_Rect location);
 
   void load_level(int level_id);
 
