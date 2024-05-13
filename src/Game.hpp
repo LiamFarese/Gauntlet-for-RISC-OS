@@ -24,7 +24,7 @@ public:
 private:
 
   bool running_;
-  Renderer renderer;
+  Renderer renderer_;
   World world_;
 
   SDL_Event event_;

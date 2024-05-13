@@ -23,6 +23,8 @@ public:
   bool move_left_;
   bool move_right_;
   bool firing_;
+  bool dying_;
+  bool dead_;
 
   Uint32 fire_rate_ {100};
   Uint32 last_fire_ {0};

@@ -20,8 +20,7 @@ public:
   Enemy(EnemyClass enemy_class, SDL_Rect position);
 
   void update(World& world) override;
-  // void set_enemy_class(EnemyClass enemy_class) noexcept;
-  // Projectile emit_projectile() override;
+  void death();
 
 private:
 

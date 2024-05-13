@@ -26,6 +26,9 @@ public:
   void handle_inputs(const SDL_Event& event);
   void select_player_class(PlayerClass player_class) noexcept;
   void update(World& world) override;
+  void damage();
+
+  int health_ {0};
 
 private:
 

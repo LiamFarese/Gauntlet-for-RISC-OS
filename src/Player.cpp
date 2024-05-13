@@ -120,6 +120,15 @@ void Player::move(int pixels){
 }
 
 void Player::update(World& world) {
+
+  if(dying_){
+    sprite_.update();
+    if(sprite_.ended_){
+      dead_ = true;
+    }
+    return;
+  }
+
   last_position_ = position_;
   
   Uint32 current = SDL_GetTicks() - last_fire_;
@@ -138,6 +147,11 @@ void Player::update(World& world) {
       sprite_.set_animation(last_state_);
     }
   }
-
+  
   sprite_.update();
 }
+
+void Player::damage(){
+  health_ -= 3;
+}
+

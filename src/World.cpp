@@ -11,9 +11,10 @@ World::~World() {
 
 void World::load_level(int level_id){
   map_ = Level::load_level(level_id);
-  player_->position_ = map_.player_position;
-  Enemy enemy {EnemyClass::kDarkWizard, {480, 96}};
-  enemies_.push_back(std::move(enemy));
+  // world_.player_->set_position(96,128);
+  // world_.player_->select_player_class(PlayerClass::kWizard);
+  // world_.player_->last_state_ = AnimationState::kIdleDown;
+  // enemies_.push_back(std::move(Enemy{EnemyClass::kDarkWizard, {480, 96}}));
   // TODO:
   // Load position of entities
 }
@@ -21,15 +22,34 @@ void World::load_level(int level_id){
 void World::update() {
   player_->update(*this);
 
-  for(auto& enemy: enemies_){
-    enemy.update(*this);
-  }
-  for(auto& projectile: player_projectiles_){
-    projectile.update(*this);
+  // Update enemies
+  for(auto it = enemies_.begin(); it != enemies_.end(); ) {
+    it->update(*this);
+    if (it->dead_) {
+      it = enemies_.erase(it); // Remove dead enemy
+    } else {
+      ++it;
+    }
   }
 
-  for(auto& projectile: enemy_projectiles_){
-    projectile.update(*this);
+  // Update player projectiles
+  for(auto it = player_projectiles_.begin(); it != player_projectiles_.end(); ) {
+    it->update(*this);
+    if (it->destroyed_) {
+      it = player_projectiles_.erase(it); // Remove dead enemy
+    } else {
+      ++it;
+    }
+  }
+
+  // Update enemy projectiles
+  for(auto it = enemy_projectiles_.begin(); it != enemy_projectiles_.end(); ) {
+    it->update(*this);
+    if (it->destroyed_) {
+      it = enemy_projectiles_.erase(it); // Remove dead enemy
+    } else {
+      ++it;
+    }
   }
 
   handle_collisions();
@@ -136,8 +156,8 @@ void World::handle_collisions() {
   
   // Handle player projectile - wall collision
   for (auto it = player_projectiles_.begin(); it != player_projectiles_.end(); ) {
-    if(wall_collision(*it)){
-      it = player_projectiles_.erase(it);
+    if(!it->collided_ && wall_collision(*it)){
+      it->destruct();
     } else {
       ++it;
     }
@@ -145,20 +165,36 @@ void World::handle_collisions() {
 
   // Handle enemy projectile - wall collision
   for (auto it = enemy_projectiles_.begin(); it != enemy_projectiles_.end(); ) {
-    if(wall_collision(*it)){
-      it = enemy_projectiles_.erase(it);
+    if(!it->collided_ && wall_collision(*it)){
+      it->destruct();
     } else {
       ++it;
     }
   }
 
+
   // Handle collisions between player projectiles and enemies
   for (auto it = player_projectiles_.begin(); it != player_projectiles_.end(); ) {
     bool projectile_removed = false;
     for (auto it_enemy = enemies_.begin(); it_enemy != enemies_.end(); ++it_enemy) {
-      if (check_collisions(*it, *it_enemy)) {
+      if (!it_enemy->dying_ && check_collisions(*it, *it_enemy)) {
         it = player_projectiles_.erase(it);
-        it_enemy = enemies_.erase(it_enemy);
+        it_enemy->death();
+        projectile_removed = true;
+        break;
+      }
+    }
+    if (!projectile_removed) {
+      ++it;
+    }
+  }
+
+  // Handle collisions between enemy projectiles and enemies
+  for (auto it = enemy_projectiles_.begin(); it != enemy_projectiles_.end(); ) {
+    bool projectile_removed = false;
+    for (auto it_enemy = enemies_.begin(); it_enemy != enemies_.end(); ++it_enemy) {
+      if (check_collisions(*it, *it_enemy)) {
+        it = enemy_projectiles_.erase(it);
         projectile_removed = true;
         break;
       }
@@ -170,8 +206,9 @@ void World::handle_collisions() {
 
   // Handle collisions between player and enemies
   for (auto enemy = enemies_.begin(); enemy != enemies_.end(); ) {
-    if (check_collisions(*player_, *enemy)) {
-      enemy = enemies_.erase(enemy);
+    if (!enemy->dying_ && check_collisions(*player_, *enemy)) {
+      // Damage player
+      enemy->death();
     } else {
       ++enemy;
     }
@@ -179,11 +216,11 @@ void World::handle_collisions() {
 
   // Handle collisions between enemy projectiles and player
   for (auto enemy_proj = enemy_projectiles_.begin(); enemy_proj != enemy_projectiles_.end(); ) {
-    if (check_collisions(*enemy_proj, *player_)) {
-      enemy_proj = enemy_projectiles_.erase(enemy_proj);
+    if (!enemy_proj->collided_ && check_collisions(*enemy_proj, *player_)) {
+      // Damage player
+      enemy_proj->destruct();
     } else {
       ++enemy_proj;
     }
   }
-
 }

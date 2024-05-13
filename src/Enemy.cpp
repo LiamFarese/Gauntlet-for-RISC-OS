@@ -16,20 +16,30 @@ Enemy::Enemy(EnemyClass enemy_class, SDL_Rect position)
         sprite_.sprite_class_ = SpriteClass::kBlueGhost; break;
     }
     position_ = position;
-    sprite_.set_animation(AnimationState::kIdleDown);
+    sprite_.set_animation(AnimationState::kMovingRight);
 };
 
-// void Enemy::update(const Player& player){
-//   // 25% chance the monster will stand still and fire a projectile if they can
+void Enemy::death(){
+  dying_ = true;
+  sprite_.set_animation(AnimationState::kDeath);
+}
+
+void Enemy::update(World& world){
+  // 25% chance the monster will stand still and fire a projectile if they can
 //   // if(dist(engine) == 1 && (enemy_class_ == EnemyClass::kDemon || enemy_class_ == EnemyClass::kDarkWizard)){
 //   //   // emit_projectile();
 //   // }
 //   // else{
     
 //   // }
-// }
+ if(dying_){
+    sprite_.update();
+    if(sprite_.ended_){
+      dead_ = true;
+    }
+    return;
+  }
 
-void Enemy::update(World& world){
   last_position_ = position_;
   sprite_.update();
 };

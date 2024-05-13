@@ -24,10 +24,16 @@ enum class AnimationState {
   kIdleDownRight,
   kIdleDownLeft,
   kAxe,
-  KSword,
-  kFireball,
-  kArrow,
-  kDarkFireball
+  kProjectileUp,
+  kProjectileDown,
+  kProjectileLeft,
+  kProjectileRight,
+  kProjectileUpLeft,
+  kProjectileDownLeft,
+  kProjectileUpRight,
+  kProjectileDownRight,
+  kProjectileDestroyed,
+  kDeath
 };
 
 // Number values represent index on the sprite sheet
@@ -65,6 +71,8 @@ public:
   SDL_Rect get_frame() const; // Render the current frame
 
   SpriteClass sprite_class_;
+  bool ended_ = false;
+
 
 private:
 
@@ -85,7 +93,17 @@ private:
     {AnimationState::kIdleDownLeft,   {160}},
     {AnimationState::kIdleLeft,       {192}},
     {AnimationState::kIdleUpLeft,     {224}},
-    {AnimationState::kAxe,            {768,800,832,864,896, 928, 960, 992}}
+    {AnimationState::kAxe,            {768,800,832,864,896, 928, 960, 992}},
+    {AnimationState::kProjectileUp,        {768}},
+    {AnimationState::kProjectileUpRight,   {800}},
+    {AnimationState::kProjectileRight,     {832}},
+    {AnimationState::kProjectileDownRight, {864}},
+    {AnimationState::kProjectileDown,      {896}},
+    {AnimationState::kProjectileDownLeft,  {928}},
+    {AnimationState::kProjectileLeft,      {960}},
+    {AnimationState::kProjectileUpLeft,    {992}},
+    {AnimationState::kProjectileDestroyed, {608, 640}},
+    {AnimationState::kDeath, {416, 448, 480, 512, 544, 576}}
   };
 
   std::vector<Sint16>* current_frames_ = nullptr; // Pointer to the current animation vector

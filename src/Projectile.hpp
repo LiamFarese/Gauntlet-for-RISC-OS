@@ -25,10 +25,13 @@ public:
   Projectile(SDL_Rect location_, Direction direction, SpriteClass sprite_class);
 
   void update(World& world);
+  void destruct();
 
   SDL_Rect position_;
   Direction direction_;
   Sprite sprite_;
+  bool collided_;
+  bool destroyed_;
 
 private:
 
