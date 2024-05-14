@@ -1,6 +1,4 @@
 #include "Renderer.hpp"
-#include "World.hpp"
-#include <sstream>
 
 Renderer::Renderer(SDL_Surface* sprite_sheet, SDL_Surface* screen)
   :sprite_sheet_(sprite_sheet), screen_(screen){
@@ -45,10 +43,11 @@ void Renderer::render(const Actor& actor){
     return;
   }
   SDL_Rect position = actor.position_;
-  // std::stringstream message;
-  // message << "position:" << actor.position_.x << " , " << actor.position_.y;
-  // render_text(message, {400,400});
-  // SDL_Rect position = {96,96};
+  position.x -= camera_.x;
+  position.y -= camera_.y;
+  std::stringstream message;
+  message << "position:" << actor.position_.x << " , " << actor.position_.y;
+  render_text(message, {400,400});
   SDL_BlitSurface(sprite_sheet_, &sprite, screen_, &position);
 }
 
@@ -60,13 +59,39 @@ void Renderer::render(const Projectile& projectile){
   }
 
   SDL_Rect position = projectile.position_;
+  position.x -= camera_.x;
+  position.y -= camera_.y;
   SDL_BlitSurface(sprite_sheet_, &sprite, screen_, &position);
 }
 
 void Renderer::render_map(const Player& player) {
-  SDL_Rect sprite = {0,0,960,640};
-  SDL_Rect position = {0,0};
-  SDL_BlitSurface(level_background_, &sprite, screen_, &position);
+ // Calculate the center of the camera
+  Sint16 camera_centre_x = camera_.x + camera_.w / 2;
+  Sint16 camera_centre_y = camera_.y + camera_.h / 2;
+
+  // Calculate the offset of the player from the camera center
+  Sint16 dx = player.position_.x - camera_centre_x;
+  Sint16 dy = player.position_.y - camera_centre_y;
+
+  // Update camera position to center on the player
+  camera_.x += dx;
+  camera_.y += dy;
+
+  // Clamp camera to stay within the bounds of the map
+  if (camera_.x < 0) {
+      camera_.x = 0;
+  }
+  if (camera_.y < 0) {
+      camera_.y = 0;
+  }
+
+  if (camera_.x + camera_.w > level_background_->w) {
+      camera_.x = level_background_->w - camera_.w;
+  }
+  if (camera_.y + camera_.h > level_background_->h) {
+      camera_.y = level_background_->h - camera_.h;
+  }
+  SDL_BlitSurface(level_background_, &camera_, screen_, NULL);
 }
 
 void Renderer::render_text(std::stringstream& message_string, SDL_Rect location) {

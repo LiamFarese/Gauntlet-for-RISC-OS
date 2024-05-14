@@ -30,7 +30,6 @@ public:
   Level::Map map_;
   Player* player_;
 
-
 private:
 
   bool check_collisions(const Actor& a, const Actor& b) const;

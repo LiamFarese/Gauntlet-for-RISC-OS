@@ -9,6 +9,7 @@
 #include "Player.hpp"
 #include "Projectile.hpp"
 #include "Actor.hpp"
+#include "SDL/SDL_video.h"
 
 class Renderer {
 
@@ -29,6 +30,7 @@ public:
 
   SDL_Surface* level_background_;
 
+  SDL_Rect camera_ {0,0,960,640};
   SDL_Surface* sprite_sheet_;
   SDL_Surface* screen_;
   TTF_Font* font_;

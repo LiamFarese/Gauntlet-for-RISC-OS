@@ -1,5 +1,6 @@
 #include "World.hpp"
 #include "Projectile.hpp"
+#include "SDL/SDL_video.h"
 
 World::World() {
   player_ = new Player();
@@ -53,7 +54,6 @@ void World::update() {
   }
 
   handle_collisions();
-
 }
 
 bool World::check_collisions(const Actor& a, const Actor& b) const {
