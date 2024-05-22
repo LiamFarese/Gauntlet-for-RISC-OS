@@ -1,25 +1,60 @@
 #include "Player.hpp"
-#include "Projectile.hpp"
-#include "Sprite.hpp"
-#include <SDL/SDL.h>
-
-#include <memory>
 
 Player::Player() 
   : Actor() {
+}
+
+Player::Player(PlayerClass player_class) 
+  : health_(500), player_class_(player_class){
+  switch (player_class_) {
+    case PlayerClass::kWarrior: 
+      sprite_ = {SpriteClass::kWarrior};
+      damage_per_hit = 3;
+      movespeed_ = 7;
+      break;
+    case PlayerClass::kValkyrie: 
+      sprite_ = {SpriteClass::kValkyrie};
+      damage_per_hit = 5;
+      movespeed_ = 7; 
+      break;
+    case PlayerClass::kWizard: 
+      sprite_ = {SpriteClass::kWizard}; 
+      damage_per_hit = 8;
+      movespeed_ = 10;      
+      break;
+    case PlayerClass::kElf: 
+      sprite_ = {SpriteClass::kElf};
+      damage_per_hit = 10;
+      movespeed_ = 12;
+      fire_rate_ = 200;
+      break;
+  }
 }
 
 void Player::select_player_class(PlayerClass player_class) noexcept {
   player_class_ = player_class;
   switch (player_class_) {
     case PlayerClass::kWarrior: 
-      sprite_.sprite_class_ = SpriteClass::kWarrior; break;
+      sprite_.sprite_class_ = SpriteClass::kWarrior;
+      damage_per_hit = 3;
+      movespeed_ = 5;
+      break;
     case PlayerClass::kValkyrie: 
-      sprite_.sprite_class_ = SpriteClass::kValkyrie; break;
+      sprite_.sprite_class_ = SpriteClass::kValkyrie;
+      damage_per_hit = 5;
+      movespeed_ = 6; 
+      break;
     case PlayerClass::kWizard: 
-      sprite_.sprite_class_ = SpriteClass::kWizard; break;
+      sprite_.sprite_class_ = SpriteClass::kWizard; 
+      damage_per_hit = 10;
+      movespeed_ = 7;      
+      break;
     case PlayerClass::kElf: 
-      sprite_.sprite_class_ = SpriteClass::kElf; break;
+      sprite_.sprite_class_ = SpriteClass::kElf;
+      damage_per_hit = 10;
+      movespeed_ = 8;
+      fire_rate_ = 200;
+      break;
   }
 }
 
@@ -45,31 +80,8 @@ void Player::handle_inputs(const SDL_Event& event) {
   }
 }
 
-void Player::set_firing_animation(Direction direction){
-  switch (direction) {
-    case Direction::kUp:
-      sprite_.set_animation(AnimationState::kMovingUp); break;
-    case Direction::kDown:
-      sprite_.set_animation(AnimationState::kMovingDown); break;
-    case Direction::kLeft:
-      sprite_.set_animation(AnimationState::kMovingLeft); break;
-    case Direction::kRight:
-      sprite_.set_animation(AnimationState::kMovingRight); break;
-    case Direction::kUpRight:
-      sprite_.set_animation(AnimationState::kMovingUpRight); break;
-    case Direction::kUpLeft:
-      sprite_.set_animation(AnimationState::kMovingUpLeft); break;
-    case Direction::kDownRight:
-      sprite_.set_animation(AnimationState::kMovingDownRight); break;
-    case Direction::kDownLeft:
-      sprite_.set_animation(AnimationState::kMovingDownLeft); break;
-     default:
-      break;
-  }
-}
-
 void Player::move(int pixels){
-    // Diagonal movement
+  // Diagonal movement
   if (move_up_ && move_right_) {
     position_.y -= pixels;
     position_.x += pixels;
@@ -134,13 +146,14 @@ void Player::update(World& world) {
   Uint32 current = SDL_GetTicks() - last_fire_;
   if(firing_) {
     move(0);
-    set_firing_animation(direction_);
-    if(current > 200) {
-      world.player_projectiles_.push_back(std::move(Projectile{position_, direction_, sprite_.sprite_class_}));
+    set_firing_animation();
+    if(current > fire_rate_) {
+      world.player_projectiles_.push_back(
+        Projectile{position_, direction_, sprite_.sprite_class_, 0});
       last_fire_ = SDL_GetTicks();
     }
   } else {
-    move(6);
+    move(movespeed_);
 
     if (!move_right_ && !move_down_ && !move_up_ && !move_left_) {
       // Set idle animation to last direction moved in
@@ -152,6 +165,9 @@ void Player::update(World& world) {
 }
 
 void Player::damage(){
-  health_ -= 3;
+  health_ -= damage_per_hit;
 }
 
+void Player::increment_score(const int points){
+  score_ += points;
+}

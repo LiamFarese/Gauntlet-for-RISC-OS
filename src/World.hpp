@@ -19,9 +19,10 @@ class World {
 public:
 
   World();
+  World(PlayerClass player_class);
   ~World();
 
-  void update();
+  void update(SDL_Rect& camera);
   void load_level(int level_id);
 
   std::vector<Enemy> enemies_;
@@ -37,4 +38,5 @@ private:
   bool wall_collision(const Actor& a) const;
   bool wall_collision(const Projectile& p) const;
   void handle_collisions();
+  void apply_seperation();
 };

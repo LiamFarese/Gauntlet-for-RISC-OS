@@ -1,8 +1,7 @@
 #include "Projectile.hpp"
-#include "Sprite.hpp"
 
-Projectile::Projectile(SDL_Rect position, Direction direction, SpriteClass sprite_class)
-  :position_(position), direction_(direction), sprite_(sprite_class), collided_(false), destroyed_(false) {
+Projectile::Projectile(SDL_Rect position, Direction direction, SpriteClass sprite_class, int id)
+  :position_(position), direction_(direction), sprite_(sprite_class), collided_(false), destroyed_(false), id_(id) {
     if(sprite_class == SpriteClass::kWarrior){
       sprite_.set_animation(AnimationState::kAxe);
     } else {
@@ -27,35 +26,35 @@ Projectile::Projectile(SDL_Rect position, Direction direction, SpriteClass sprit
     }
 }
 
-void Projectile::move(int pixels) {
+void Projectile::move() {
   switch (direction_){
     case Direction::kUp:
-      position_.y -= pixels;
+      position_.y -= speed_;
       break;
     case Direction::kDown:
-      position_.y += pixels;
+      position_.y += speed_;
       break;
     case Direction::kLeft:
-      position_.x -= pixels;
+      position_.x -= speed_;
       break;
     case Direction::kRight:
-      position_.x += pixels;
+      position_.x += speed_;
       break;
     case Direction::kDownLeft:
-      position_.x -= pixels;
-      position_.y += pixels;
+      position_.x -= speed_;
+      position_.y += speed_;
       break;
     case Direction::kDownRight:
-      position_.x += pixels;
-      position_.y += pixels;
+      position_.x += speed_;
+      position_.y += speed_;
       break;
     case Direction::kUpLeft:
-      position_.x -= pixels;
-      position_.y -= pixels;
+      position_.x -= speed_;
+      position_.y -= speed_;
       break;
     case Direction::kUpRight:
-      position_.x += pixels;
-      position_.y -= pixels;
+      position_.x += speed_;
+      position_.y -= speed_;
       break;
   }
 }
@@ -75,6 +74,6 @@ void Projectile::update(World& world){
     return;
   }
 
-  move(20);
+  move();
   sprite_.update();
 }

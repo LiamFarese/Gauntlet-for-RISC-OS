@@ -1,9 +1,12 @@
 #include "World.hpp"
-#include "Projectile.hpp"
-#include "SDL/SDL_video.h"
+#include "Vector2.hpp"
 
 World::World() {
   player_ = new Player();
+}
+
+World::World(PlayerClass player_class) 
+  : player_(new Player(player_class)) {
 }
 
 World::~World() {
@@ -12,15 +15,16 @@ World::~World() {
 
 void World::load_level(int level_id){
   map_ = Level::load_level(level_id);
-  // world_.player_->set_position(96,128);
-  // world_.player_->select_player_class(PlayerClass::kWizard);
-  // world_.player_->last_state_ = AnimationState::kIdleDown;
-  // enemies_.push_back(std::move(Enemy{EnemyClass::kDarkWizard, {480, 96}}));
-  // TODO:
-  // Load position of entities
+  player_->position_ = map_.player_position;
+  player_->last_state_ = map_.player_state;
+  for(const auto& enemy : map_.enemies){
+    enemies_.push_back(enemy);
+  }
+  player_projectiles_.clear();
+  enemy_projectiles_.clear();
 }
 
-void World::update() {
+void World::update(SDL_Rect& camera) {
   player_->update(*this);
 
   // Update enemies
@@ -37,7 +41,7 @@ void World::update() {
   for(auto it = player_projectiles_.begin(); it != player_projectiles_.end(); ) {
     it->update(*this);
     if (it->destroyed_) {
-      it = player_projectiles_.erase(it); // Remove dead enemy
+      it = player_projectiles_.erase(it);
     } else {
       ++it;
     }
@@ -47,30 +51,30 @@ void World::update() {
   for(auto it = enemy_projectiles_.begin(); it != enemy_projectiles_.end(); ) {
     it->update(*this);
     if (it->destroyed_) {
-      it = enemy_projectiles_.erase(it); // Remove dead enemy
+      it = enemy_projectiles_.erase(it);
     } else {
       ++it;
     }
   }
-
+  
   handle_collisions();
 }
 
 bool World::check_collisions(const Actor& a, const Actor& b) const {
-  if(a.position_.x + a.position_.w < b.position_.x ||
-    a.position_.x > b.position_.x + b.position_.w ||
-    a.position_.y + a.position_.h < b.position_.y ||
-    a.position_.y > b.position_.y + b.position_.h) {
+  if(a.position_.x + a.position_.w -1 < b.position_.x ||
+    a.position_.x > b.position_.x + b.position_.w -1 ||
+    a.position_.y + a.position_.h -1 < b.position_.y ||
+    a.position_.y > b.position_.y + b.position_.h -1) {
       return false;
     }
   return true;
 }
 
 bool World::check_collisions(const Projectile& p, const Actor& a) const {
-  if(p.position_.x + p.position_.w < a.position_.x ||
-    p.position_.x > a.position_.x + a.position_.w ||
-    p.position_.y + p.position_.h < a.position_.y ||
-    p.position_.y > a.position_.y + a.position_.h) {
+  if(p.position_.x + p.position_.w -1 < a.position_.x ||
+    p.position_.x > a.position_.x + a.position_.w -1 ||
+    p.position_.y + p.position_.h -1 < a.position_.y ||
+    p.position_.y > a.position_.y + a.position_.h -1) {
       return false;
     }
   return true;
@@ -158,6 +162,7 @@ void World::handle_collisions() {
   for (auto it = player_projectiles_.begin(); it != player_projectiles_.end(); ) {
     if(!it->collided_ && wall_collision(*it)){
       it->destruct();
+
     } else {
       ++it;
     }
@@ -172,7 +177,6 @@ void World::handle_collisions() {
     }
   }
 
-
   // Handle collisions between player projectiles and enemies
   for (auto it = player_projectiles_.begin(); it != player_projectiles_.end(); ) {
     bool projectile_removed = false;
@@ -180,6 +184,7 @@ void World::handle_collisions() {
       if (!it_enemy->dying_ && check_collisions(*it, *it_enemy)) {
         it = player_projectiles_.erase(it);
         it_enemy->death();
+        player_->increment_score(20);
         projectile_removed = true;
         break;
       }
@@ -193,7 +198,7 @@ void World::handle_collisions() {
   for (auto it = enemy_projectiles_.begin(); it != enemy_projectiles_.end(); ) {
     bool projectile_removed = false;
     for (auto it_enemy = enemies_.begin(); it_enemy != enemies_.end(); ++it_enemy) {
-      if (check_collisions(*it, *it_enemy)) {
+      if (check_collisions(*it, *it_enemy) && it->id_ != it_enemy->id_) {
         it = enemy_projectiles_.erase(it);
         projectile_removed = true;
         break;
@@ -207,7 +212,8 @@ void World::handle_collisions() {
   // Handle collisions between player and enemies
   for (auto enemy = enemies_.begin(); enemy != enemies_.end(); ) {
     if (!enemy->dying_ && check_collisions(*player_, *enemy)) {
-      // Damage player
+      player_->damage();
+      player_->increment_score(20);
       enemy->death();
     } else {
       ++enemy;
@@ -216,11 +222,17 @@ void World::handle_collisions() {
 
   // Handle collisions between enemy projectiles and player
   for (auto enemy_proj = enemy_projectiles_.begin(); enemy_proj != enemy_projectiles_.end(); ) {
+    bool projectile_removed = false;
     if (!enemy_proj->collided_ && check_collisions(*enemy_proj, *player_)) {
-      // Damage player
-      enemy_proj->destruct();
-    } else {
+      player_->damage();
+      enemy_proj = enemy_projectiles_.erase(enemy_proj);
+        projectile_removed = true;
+        break;
+      }
+    if (!projectile_removed) {
       ++enemy_proj;
     }
   }
 }
+
+

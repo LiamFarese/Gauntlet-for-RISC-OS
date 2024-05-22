@@ -88,5 +88,5 @@ void Application::window_open() {
 
   // Start game to open SDL window
   std::unique_ptr<Game> game(new Game());
-  game->run();
+  game->start();
 }

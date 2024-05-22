@@ -3,12 +3,11 @@
 #include <sstream>
 
 #include <SDL/SDL.h>
-#include <SDL/SDL_ttf.h>
 #include <SDL/SDL_image.h>
 
 
-#include "World.hpp"
 #include "Player.hpp"
+#include "World.hpp"
 #include "Renderer.hpp"
 
 class Game {
@@ -19,21 +18,27 @@ public:
 
   ~Game();
 
-  void run();
+  void start();
 
 private:
 
-  bool running_;
+  bool open_         {true};
+  bool title_screen_ {false};
+  bool running_      {false};
+  
   Renderer renderer_;
-  World world_;
-
+  PlayerClass selected_class_;
   SDL_Event event_;
 
-  void handle_events();
+  void handle_game_events(World& world);
+  void handle_menu_events();
 
-  void load_level(int level_id);
+  void load_level(World& world, int level_id);
 
-  void render();
+  void render(World& world);
+  void render_title();
+
+  void run_game();
 
   // Helper methods for initialization
   Renderer init_renderer();

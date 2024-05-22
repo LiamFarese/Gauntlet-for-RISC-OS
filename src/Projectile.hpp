@@ -22,7 +22,7 @@ class Projectile {
 
 public:
 
-  Projectile(SDL_Rect location_, Direction direction, SpriteClass sprite_class);
+  Projectile(SDL_Rect location_, Direction direction, SpriteClass sprite_class, int id);
 
   void update(World& world);
   void destruct();
@@ -32,9 +32,11 @@ public:
   Sprite sprite_;
   bool collided_;
   bool destroyed_;
+  int id_;
 
 private:
 
-  void move(int pixels);
+  static constexpr int speed_ {15};
+  void move();
 
 };

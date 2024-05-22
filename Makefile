@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -std=c++11 -static -Wall
+CXXFLAGS = -std=c++11 -static -Wall -O2
 INCLUDES = -I$(GCCSDK_INSTALL_ENV)/include
 LINKS = -L$(GCCSDK_INSTALL_ENV)/lib -lDesk -lSDL -lSDL_image -lSDL_ttf -lpng -ltiff -ljpeg -lz -llzma -lwebp -lfreetype -lbz2
 
