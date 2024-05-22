@@ -37,7 +37,7 @@ public:
   Uint32 last_fire_;
 
   // Actor specific
-  Uint32 fire_rate_ {300};
+  Uint32 fire_rate_ {350};
   int movespeed_    {0};
 
   // Direction the actor is facing for projectile 

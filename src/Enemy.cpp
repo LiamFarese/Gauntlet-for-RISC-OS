@@ -19,7 +19,6 @@ Enemy::Enemy(EnemyClass enemy_class, SDL_Rect position)
   }
   position_ = position;
   last_position_ = position;
-  fire_rate_ = 100;
   sprite_.set_animation(AnimationState::kMovingRight);
   movespeed_ = 4;
   id_ = ID++;
@@ -127,13 +126,18 @@ bool Enemy::check_collisions(Enemy& a, Enemy& b, Sint16 dx, Sint16 dy) {
 }
 
 void Enemy::move_around_tiles(World& world, Sint16 dy, Sint16 dx){
-  if (std::abs(dx) < 500 && std::abs(dy) < 400) {
+  if (std::abs(dx) < 600 && std::abs(dy) < 400) {
     int tile_x = position_.x / 32;
     int tile_y = position_.y / 32;
 
     // Check the tiles directly adjacent to the enemy
     bool top_blocked = world.map_.tile_map[tile_y - 1][tile_x];
+    bool top_right_blocked = !world.map_.tile_map[tile_y - 1][tile_x] & world.map_.tile_map[tile_y - 1][tile_x-1];
+    bool top_left_blocked = !world.map_.tile_map[tile_y - 1][tile_x] & world.map_.tile_map[tile_y - 1][tile_x+1];
+    bool left_top_blocked = !world.map_.tile_map[tile_y][tile_x-1] & world.map_.tile_map[tile_y+1][tile_x-1];
     bool bottom_blocked = world.map_.tile_map[tile_y + 1][tile_x];
+    bool bottom_right_blocked = !world.map_.tile_map[tile_y+1][tile_x] & world.map_.tile_map[tile_y + 1][tile_x-1];
+    bool bottom_left_blocked = !world.map_.tile_map[tile_y+1][tile_x] & world.map_.tile_map[tile_y + 1][tile_x+1];
     bool left_blocked = world.map_.tile_map[tile_y][tile_x - 1];
     bool right_blocked = world.map_.tile_map[tile_y][tile_x + 1]; 
 
@@ -144,6 +148,15 @@ void Enemy::move_around_tiles(World& world, Sint16 dy, Sint16 dx){
     // Check if the enemy is moving vertically and if the direction is blocked
     if (velocity_.y > 0 && bottom_blocked) velocity_.y = 0;
     if (velocity_.y < 0 && top_blocked) velocity_.y = 0;
+
+    // Stop getting stuck around corners
+    if (velocity_.x < 0 && velocity_.y > 0 && bottom_left_blocked) velocity_.y = 0;
+    if (velocity_.x < 0 && velocity_.y < 0 && top_left_blocked) velocity_.y = 0;
+    if (velocity_.x < 0 && velocity_.y < 0 && left_top_blocked) velocity_.x = 0;
+
+    if (velocity_.x > 0 && velocity_.y < 0 && top_right_blocked) velocity_.y = 0;
+    if (velocity_.x > 0 && velocity_.y > 0 && bottom_right_blocked) velocity_.y = 0;
+
   }
 }
 
@@ -202,8 +215,8 @@ void Enemy::update(World& world){
   }
 
   // If offscreen
-  if(std::abs(world.player_->position_.x - position_.x) > 500 && 
-     std::abs(world.player_->position_.y - position_.y) > 400){
+  if(std::abs(world.player_->position_.x - position_.x) > 1000 && 
+     std::abs(world.player_->position_.y - position_.y) > 700){
     sprite_.update();
     return;
   }
@@ -222,7 +235,7 @@ void Enemy::update(World& world){
       standing_timer_++;
     }
 
-    // 25% chance the monster will stand still and fire a projectile if they can
+    // If the monster has stood still long enough they will fire and reset the standing timer
     if (standing_timer_ > standing_duration_){ 
       move(0, world);
       set_firing_animation();

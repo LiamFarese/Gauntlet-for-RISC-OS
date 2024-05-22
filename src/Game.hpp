@@ -5,8 +5,7 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 
-
-#include "Player.hpp"
+#include "UIManager.hpp"
 #include "World.hpp"
 #include "Renderer.hpp"
 
@@ -27,7 +26,8 @@ private:
   bool running_      {false};
   
   Renderer renderer_;
-  PlayerClass selected_class_;
+  UIManager ui_manager_;
+  
   SDL_Event event_;
 
   void handle_game_events(World& world);

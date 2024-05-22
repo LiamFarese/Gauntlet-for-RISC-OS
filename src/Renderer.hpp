@@ -9,13 +9,13 @@
 #include "Player.hpp"
 #include "Projectile.hpp"
 #include "Actor.hpp"
-#include "SDL/SDL_video.h"
+#include "UIManager.hpp"
 
 class Renderer {
 
 public:
 
-  Renderer(SDL_Surface* sprite_sheet, SDL_Surface* screen, SDL_Surface* title_screen);
+  Renderer(SDL_Surface* sprite_sheet, SDL_Surface* screen, SDL_Surface* title_screen, SDL_Surface* logo);
   Renderer();
   ~Renderer();
 
@@ -24,7 +24,7 @@ public:
   void render(const Projectile& projectile) const;
   void render_map(const Player& player);
   void render_title() const;
-  void render_sidebar();
+  void render_sidebar(UIManager& ui_manager);
   void render_text(const std::string& message_string, SDL_Rect location);
   void render_frame() const;
 
@@ -35,15 +35,19 @@ public:
   SDL_Surface* sprite_sheet_;
   SDL_Surface* screen_;
   SDL_Surface* title_screen_;
+  SDL_Surface* logo_;
 
   SDL_Rect camera_ {0,0,960,640};
 
   TTF_Font* font_;
+  TTF_Font* title_font_;
   SDL_Color text_color_ { 255, 255, 255 };
   Uint32 screen_clear_color_ = SDL_MapRGB(screen_->format, 0, 0, 0);
 
 private:
 
+  int ui_rendered_;
+  void render_static_ui();
   bool is_zero(SDL_Rect& sprite) const;
   bool clip(SDL_Rect& location) const;
 };

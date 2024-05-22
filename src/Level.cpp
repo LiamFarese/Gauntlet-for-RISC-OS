@@ -57,6 +57,7 @@ Level::Map Level::load_level(int level_number) {
 
   switch (level_number) {
     case 0:
+      map.level_number = 0;
       map.level_name = "<!Gauntlet$Dir>.training1";
       grid = training_1;  // Directly use a reference to the static grid
       map.player_position = {96, 128, 32, 32};

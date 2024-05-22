@@ -1,12 +1,8 @@
 #include "World.hpp"
 #include "Vector2.hpp"
 
-World::World() {
-  player_ = new Player();
-}
-
-World::World(PlayerClass player_class) 
-  : player_(new Player(player_class)) {
+World::World(UIManager& ui_manager) 
+  : player_(new Player(ui_manager.player_class_, ui_manager)) {
 }
 
 World::~World() {

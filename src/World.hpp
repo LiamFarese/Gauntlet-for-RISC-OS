@@ -11,6 +11,7 @@
 #include "Enemy.hpp"
 #include "Projectile.hpp"
 #include "Sprite.hpp"
+#include "UIManager.hpp"
 
 class Player;
 
@@ -18,8 +19,7 @@ class World {
 
 public:
 
-  World();
-  World(PlayerClass player_class);
+  World(UIManager& ui_manager);
   ~World();
 
   void update(SDL_Rect& camera);

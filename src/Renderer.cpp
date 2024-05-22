@@ -1,10 +1,13 @@
 #include "Renderer.hpp"
+#include "SDL/SDL_ttf.h"
 #include "SDL/SDL_video.h"
 
-Renderer::Renderer(SDL_Surface* sprite_sheet, SDL_Surface* screen, SDL_Surface* title_screen)
-  :sprite_sheet_(sprite_sheet), screen_(screen), title_screen_(title_screen){
+Renderer::Renderer(SDL_Surface* sprite_sheet, SDL_Surface* screen, SDL_Surface* title_screen, SDL_Surface* logo)
+  :sprite_sheet_(sprite_sheet), screen_(screen), title_screen_(title_screen), logo_(logo), ui_rendered_(0) {
   TTF_Init();
-  font_ = TTF_OpenFont("<!Gauntlet$Dir>.Font", 28);
+  font_ = TTF_OpenFont("<!Gauntlet$Dir>.Font", 20);
+  title_font_ = TTF_OpenFont("<!Gauntlet$Dir>.Font", 30);
+
 };
 
 Renderer::Renderer()
@@ -115,15 +118,67 @@ void Renderer::render_map(const Player& player) {
 }
 
 void Renderer::render_title() const{
-
   SDL_Rect position {0,0,960,640};
   SDL_Rect dest {0,0,960,640};
   SDL_BlitSurface(title_screen_, &position, screen_, &dest);
+
 }
 
-void Renderer::render_sidebar() {
-  SDL_Rect ui {960,0, 240, 640};
-  SDL_FillRect(screen_, &ui, SDL_MapRGB(screen_->format, 0, 0, 255));
+void Renderer::render_sidebar(UIManager& ui_manager) {
+  // clear background and set it to black
+  SDL_Rect ui {960,100, 240, 640};
+  SDL_FillRect(screen_, &ui, SDL_MapRGB(screen_->format, 0, 0, 0));
+
+  render_static_ui();
+
+  Sint16 score_and_health_y = 0;
+  switch(ui_manager.player_class_){
+    case PlayerClass::kWarrior: score_and_health_y = 222; break; 
+    case PlayerClass::kValkyrie: score_and_health_y = 344; break; 
+    case PlayerClass::kWizard: score_and_health_y = 466; break; 
+    case PlayerClass::kElf: score_and_health_y = 588; break; 
+    default: break;
+  }
+
+  std::string default_values = "000";
+  if(ui_manager.game_running){
+    
+    render_text(ui_manager.health_str, {1110, score_and_health_y});
+    render_text(ui_manager.score_str, {1030, score_and_health_y});
+
+    Sint16 y_location = 222;
+    for(int i = 0; i < 4; i++){
+      render_text("health:", {1110, static_cast<Sint16>(y_location-30)});
+      render_text("score:", {1030, static_cast<Sint16>(y_location-30)});
+      if(i != static_cast<Sint16>(ui_manager.player_class_)){
+        render_text(default_values, {1110, y_location});
+        render_text(default_values, {1030, y_location});
+      }
+      y_location += 122;
+    }
+  } else {
+    Sint16 y_location = 222;
+    std::string prompt = "press          to play";
+    std::stringstream number;
+    SDL_Rect location{1075};
+    for(int i = 0; i < 4; i++){
+      SDL_Color class_color;
+      switch (i) {
+        case 0: class_color = {255, 0, 0}; number << 1; break;
+        case 1: class_color = {0, 0, 255}; number << 2; break;
+        case 2: class_color = {255, 255, 0}; number << 3; break;
+        case 3: class_color = {0, 255, 0}; number << 4; break;
+      }
+      render_text(prompt, {1020, y_location});
+      location.y = y_location;
+      SDL_Surface* message = TTF_RenderText_Solid(title_font_, number.str().c_str(), class_color);
+
+      SDL_BlitSurface(message, nullptr, screen_, &location);
+      SDL_FreeSurface( message );
+      number.str(std::string());
+      y_location += 122;
+    }
+  }
 }
 
 void Renderer::render_text(const std::string& message_string, SDL_Rect location) {
@@ -146,4 +201,34 @@ bool Renderer::clip(SDL_Rect& location) const {
          location.x > camera_.x + camera_.w ||
          location.y + 32 < camera_.y ||
          location.x + 32 < camera_.x;
+}
+
+void Renderer::render_static_ui() {
+
+  SDL_Rect src {0,0,220,56};
+  SDL_Rect location {970, 10, 220, 56};
+  SDL_BlitSurface(logo_, &src , screen_, &location);
+
+  struct ClassInfo {
+    std::string name;
+    SDL_Color color;
+    Sint16 x_location;
+    Sint16 y_location;
+  };
+
+  // Define class names and their respective colors
+  std::vector<ClassInfo> classes {
+    {"Warrior", {255, 0, 0}, 1045, 150},
+    {"Valkyrie", {0, 0, 255}, 1040, 272},
+    {"Wizard", {255, 255, 0}, 1050, 394},
+    {"Elf", {0, 255, 0}, 1080, 516}
+  };
+
+  // Render class names
+  for (const auto& info : classes) {
+    SDL_Surface* message = TTF_RenderText_Solid(title_font_, info.name.c_str(), info.color);
+    SDL_Rect location = {info.x_location, info.y_location};
+    SDL_BlitSurface(message, nullptr, screen_, &location);
+    SDL_FreeSurface(message);
+  }
 }

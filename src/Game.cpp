@@ -1,8 +1,7 @@
 #include "Game.hpp"
 
-
 Game::Game() 
-  : renderer_(init_renderer()) {;;
+  : renderer_(init_renderer()), ui_manager_() {;;
 }
 
 Renderer Game::init_renderer() {
@@ -19,8 +18,16 @@ Renderer Game::init_renderer() {
   image = IMG_Load("<!Gauntlet$Dir>.title");
 
   SDL_Surface* formatted = SDL_DisplayFormat(image);
+  
+  SDL_FreeSurface(image);
 
-  return Renderer{sprite_sheet, screen, formatted};
+  image = IMG_Load("<!Gauntlet$Dir>.logo");
+
+  SDL_Surface* logo = SDL_DisplayFormat(image);
+
+  SDL_FreeSurface(image);
+
+  return Renderer{sprite_sheet, screen, formatted, logo};
 }
 
 Game::~Game() {
@@ -33,6 +40,7 @@ void Game::handle_game_events(World& world) {
   while (SDL_PollEvent(&event_)) {
   
     if (event_.type == SDL_QUIT || (event_.type == SDL_KEYDOWN && event_.key.keysym.sym == SDLK_ESCAPE)) {
+      ui_manager_.game_running  = false;
       running_ = false;
       title_screen_ = true;
     } else {
@@ -50,22 +58,26 @@ void Game::handle_menu_events(){
         if (event_.type == SDL_KEYDOWN) {
           switch (event_.key.keysym.sym) {
             case SDLK_1:
-              selected_class_ = PlayerClass::kWarrior; 
+              ui_manager_.player_class_ = PlayerClass::kWarrior;
+              ui_manager_.game_running  = true;
               running_ = true;
               title_screen_ = false; 
               break;
             case SDLK_2:
-              selected_class_ = PlayerClass::kValkyrie;
+              ui_manager_.player_class_ = PlayerClass::kValkyrie;
+              ui_manager_.game_running  = true;
               running_ = true;
               title_screen_ = false; 
               break;
             case SDLK_3:
-              selected_class_ = PlayerClass::kWizard;
+              ui_manager_.player_class_ = PlayerClass::kWizard;
+              ui_manager_.game_running  = true;
               running_ = true;
               title_screen_ = false; 
               break;
             case SDLK_4:
-              selected_class_ = PlayerClass::kElf; 
+              ui_manager_.player_class_ = PlayerClass::kElf; 
+              ui_manager_.game_running  = true;
               running_ = true; 
               title_screen_ = false; 
               break;
@@ -96,18 +108,15 @@ void Game::render(World& world) {
     renderer_.render(p);
   }
 
-  renderer_.render_sidebar();
-  std::stringstream ss;
-  ss << "health: " << world.player_->health_;
-  std::string healthText = ss.str();
-  renderer_.render_text(healthText, {700,0});
+  renderer_.render_sidebar(ui_manager_);
 
   // Update the screen   
   renderer_.render_frame();
 }
 
-void Game::render_title(){
+void Game::render_title() {
   renderer_.render_title();
+  renderer_.render_sidebar(ui_manager_);
   renderer_.render_frame();
 }
 
@@ -128,8 +137,8 @@ void Game::load_level(World& world, int level_id){
 }
 
 void Game::run_game() {
-
-  World world{selected_class_};
+  ui_manager_.score_str = "0";
+  World world{ui_manager_};
   load_level(world, 0);
 
   // Game tick rate in ms, 30 ticks per second

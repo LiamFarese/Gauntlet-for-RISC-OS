@@ -15,6 +15,7 @@ namespace Level {
     AnimationState player_state;
     std::vector<Enemy> enemies;
     std::string level_name;
+    int level_number;
   };
 
   Map load_level(int level_number);

@@ -1,11 +1,11 @@
 #include "Player.hpp"
 
-Player::Player() 
-  : Actor() {
-}
+#include "SDL/SDL_timer.h"
+#include "UIManager.hpp"
+#include "World.hpp"
 
-Player::Player(PlayerClass player_class) 
-  : health_(500), player_class_(player_class){
+Player::Player(PlayerClass player_class, UIManager& ui_manager) 
+  : player_class_(player_class), ui_manager_(ui_manager), score_(0), health_(500), health_timer_(0) {
   switch (player_class_) {
     case PlayerClass::kWarrior: 
       sprite_ = {SpriteClass::kWarrior};
@@ -20,13 +20,13 @@ Player::Player(PlayerClass player_class)
     case PlayerClass::kWizard: 
       sprite_ = {SpriteClass::kWizard}; 
       damage_per_hit = 8;
-      movespeed_ = 10;      
+      movespeed_ = 9;      
       break;
     case PlayerClass::kElf: 
       sprite_ = {SpriteClass::kElf};
       damage_per_hit = 10;
-      movespeed_ = 12;
-      fire_rate_ = 200;
+      movespeed_ = 10;
+      fire_rate_ = 300;
       break;
   }
 }
@@ -53,7 +53,7 @@ void Player::select_player_class(PlayerClass player_class) noexcept {
       sprite_.sprite_class_ = SpriteClass::kElf;
       damage_per_hit = 10;
       movespeed_ = 8;
-      fire_rate_ = 200;
+      fire_rate_ = 175;
       break;
   }
 }
@@ -162,12 +162,25 @@ void Player::update(World& world) {
   }
   
   sprite_.update();
+
+  current = SDL_GetTicks();
+  if(current - health_timer_ > 1000){
+    this->damage(1);
+    health_timer_ = current;
+  }
 }
 
 void Player::damage(){
   health_ -= damage_per_hit;
+  ui_manager_.update_health(health_);
+}
+
+void Player::damage(int hp){
+  health_ -= hp;
+  ui_manager_.update_health(health_);
 }
 
 void Player::increment_score(const int points){
   score_ += points;
+  ui_manager_.update_score(score_);
 }

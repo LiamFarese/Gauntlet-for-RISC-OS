@@ -8,6 +8,9 @@
 #include "Projectile.hpp"
 #include "Sprite.hpp"
 
+class World;
+class UIManager;
+
 enum class PlayerClass {
   kWarrior,
   kValkyrie,
@@ -15,30 +18,29 @@ enum class PlayerClass {
   kElf
 };
 
-#include "World.hpp"
-
 class Player : public Actor {
     
 public:
 
-  Player();
-  Player(PlayerClass player_class);
+  Player(PlayerClass player_class, UIManager& ui_manager);
 
   void handle_inputs(const SDL_Event& event);
   void select_player_class(PlayerClass player_class) noexcept;
   void update(World& world) override;
-  int health_ {500};
 
   void damage();
+  void damage(int hp);
   void increment_score(const int points);
+
 private:
 
   PlayerClass player_class_;
+  UIManager& ui_manager_;
   int damage_per_hit;
 
-  // int health_ {500};
-  int score_ {0};
+  int score_;
+  int health_;
 
-  Uint32 timer_ {0};
+  Uint32 health_timer_;
   void move(int pixels);
 };
