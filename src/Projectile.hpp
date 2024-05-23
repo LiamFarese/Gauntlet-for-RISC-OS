@@ -3,18 +3,7 @@
 #include <SDL/SDL.h>
 
 #include "Sprite.hpp"
-
-
-enum class Direction {
-  kUp,
-  kDown,
-  kLeft,
-  kRight,
-  kUpRight,
-  kUpLeft,
-  kDownLeft,
-  kDownRight
-};
+#include "Models.hpp"
 
 class World;
 

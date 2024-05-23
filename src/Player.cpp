@@ -1,11 +1,12 @@
 #include "Player.hpp"
 
-#include "SDL/SDL_timer.h"
+#include "Models.hpp"
+#include "SoundManager.hpp"
 #include "UIManager.hpp"
 #include "World.hpp"
 
-Player::Player(PlayerClass player_class, UIManager& ui_manager) 
-  : player_class_(player_class), ui_manager_(ui_manager), score_(0), health_(500), health_timer_(0) {
+Player::Player(PlayerClass player_class, UIManager& ui_manager, SoundManager& sound_manager) 
+  : player_class_(player_class), ui_manager_(ui_manager), score_(0), health_(500), health_timer_(0),sound_manager_(sound_manager) {
   switch (player_class_) {
     case PlayerClass::kWarrior: 
       sprite_ = {SpriteClass::kWarrior};
@@ -27,33 +28,6 @@ Player::Player(PlayerClass player_class, UIManager& ui_manager)
       damage_per_hit = 10;
       movespeed_ = 10;
       fire_rate_ = 300;
-      break;
-  }
-}
-
-void Player::select_player_class(PlayerClass player_class) noexcept {
-  player_class_ = player_class;
-  switch (player_class_) {
-    case PlayerClass::kWarrior: 
-      sprite_.sprite_class_ = SpriteClass::kWarrior;
-      damage_per_hit = 3;
-      movespeed_ = 5;
-      break;
-    case PlayerClass::kValkyrie: 
-      sprite_.sprite_class_ = SpriteClass::kValkyrie;
-      damage_per_hit = 5;
-      movespeed_ = 6; 
-      break;
-    case PlayerClass::kWizard: 
-      sprite_.sprite_class_ = SpriteClass::kWizard; 
-      damage_per_hit = 10;
-      movespeed_ = 7;      
-      break;
-    case PlayerClass::kElf: 
-      sprite_.sprite_class_ = SpriteClass::kElf;
-      damage_per_hit = 10;
-      movespeed_ = 8;
-      fire_rate_ = 175;
       break;
   }
 }
@@ -131,6 +105,7 @@ void Player::move(int pixels){
   }
 }
 
+// Function to be called to update the game state of the player
 void Player::update(World& world) {
 
   if(dying_){
@@ -143,15 +118,8 @@ void Player::update(World& world) {
 
   last_position_ = position_;
   
-  Uint32 current = SDL_GetTicks() - last_fire_;
   if(firing_) {
-    move(0);
-    set_firing_animation();
-    if(current > fire_rate_) {
-      world.player_projectiles_.push_back(
-        Projectile{position_, direction_, sprite_.sprite_class_, 0});
-      last_fire_ = SDL_GetTicks();
-    }
+    fire(world);
   } else {
     move(movespeed_);
 
@@ -161,26 +129,66 @@ void Player::update(World& world) {
     }
   }
   
+  tick_health();
   sprite_.update();
+}
 
-  current = SDL_GetTicks();
-  if(current - health_timer_ > 1000){
-    this->damage(1);
-    health_timer_ = current;
+void Player::fire(World& world){
+  Uint32 current = SDL_GetTicks() - last_fire_;
+  move(0);
+  set_firing_animation();
+  if(current > fire_rate_) {
+    notify(GameEvent::kPlayerFire);
+    world.player_projectiles_.push_back(
+      Projectile{position_, direction_, sprite_.sprite_class_, 0});
+    last_fire_ = SDL_GetTicks();
   }
 }
 
 void Player::damage(){
   health_ -= damage_per_hit;
-  ui_manager_.update_health(health_);
+  notify(GameEvent::kPlayerDamage);
 }
 
-void Player::damage(int hp){
-  health_ -= hp;
-  ui_manager_.update_health(health_);
+// Player loses 1hp every second
+void Player::tick_health(){
+  Uint32 current = SDL_GetTicks();
+  if(current - health_timer_ > 1000){
+    health_ --;
+    health_timer_ = current;
+    notify(GameEvent::kPlayerTickDamage);
+  }
 }
 
-void Player::increment_score(const int points){
-  score_ += points;
-  ui_manager_.update_score(score_);
+// All pickup types still need to be implemented
+void Player::pickup_item(Pickup pickup){
+  switch (pickup.pickup_type_) {
+
+    case PickupType::kPoints: 
+      score_ += 100;
+      notify(GameEvent::kPointPickup);
+      break;
+    case PickupType::kHealth:
+      health_ += 100;
+      notify(GameEvent::kHealthPickup);
+    case PickupType::kHealthPotion:
+      // TODO: implement potions
+      notify(GameEvent::kHealthPotionPickup);
+    case PickupType::kDestroyPotion:
+      // TODO: implement potions
+      notify(GameEvent::kDestroyPotionPickup);
+    case PickupType::kKey:
+      // TODO: implement keys  
+      notify(GameEvent::kKeyPickup);
+      break;
+    case PickupType::kExit:
+      // TODO: implement next levels
+      notify(GameEvent::kLevelExit);
+      break;
+    }
+}
+
+void Player::notify(GameEvent event){
+  sound_manager_.on_notify(event);
+  ui_manager_.on_notify(event);
 }

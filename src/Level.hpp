@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "Enemy.hpp"
+#include "Pickup.hpp"
 #include "Sprite.hpp"
 
 namespace Level {
@@ -14,6 +15,7 @@ namespace Level {
     SDL_Rect player_position;
     AnimationState player_state;
     std::vector<Enemy> enemies;
+    std::vector<Pickup> pickups;
     std::string level_name;
     int level_number;
   };

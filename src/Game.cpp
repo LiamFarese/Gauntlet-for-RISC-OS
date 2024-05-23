@@ -1,4 +1,7 @@
 #include "Game.hpp"
+#include "Models.hpp"
+
+#include <iostream>
 
 Game::Game() 
   : renderer_(init_renderer()), ui_manager_() {;;
@@ -31,7 +34,8 @@ Renderer Game::init_renderer() {
 }
 
 Game::~Game() {
-  renderer_.destory();
+  renderer_.destroy();
+  sound_manager_.destroy();
   TTF_Quit();
   SDL_Quit();
 }
@@ -58,26 +62,26 @@ void Game::handle_menu_events(){
         if (event_.type == SDL_KEYDOWN) {
           switch (event_.key.keysym.sym) {
             case SDLK_1:
-              ui_manager_.player_class_ = PlayerClass::kWarrior;
-              ui_manager_.game_running  = true;
+              ui_manager_.configure_player_class(PlayerClass::kWarrior);
+              sound_manager_.configure_player_sounds(PlayerClass::kWarrior);
               running_ = true;
               title_screen_ = false; 
               break;
             case SDLK_2:
-              ui_manager_.player_class_ = PlayerClass::kValkyrie;
-              ui_manager_.game_running  = true;
+              ui_manager_.configure_player_class(PlayerClass::kValkyrie);
+              sound_manager_.configure_player_sounds(PlayerClass::kValkyrie);
               running_ = true;
               title_screen_ = false; 
               break;
             case SDLK_3:
-              ui_manager_.player_class_ = PlayerClass::kWizard;
-              ui_manager_.game_running  = true;
+              ui_manager_.configure_player_class(PlayerClass::kWizard);
+              sound_manager_.configure_player_sounds(PlayerClass::kWizard);
               running_ = true;
               title_screen_ = false; 
               break;
             case SDLK_4:
-              ui_manager_.player_class_ = PlayerClass::kElf; 
-              ui_manager_.game_running  = true;
+              ui_manager_.configure_player_class(PlayerClass::kElf);
+              sound_manager_.configure_player_sounds(PlayerClass::kElf);
               running_ = true; 
               title_screen_ = false; 
               break;
@@ -89,8 +93,6 @@ void Game::handle_menu_events(){
 }
 
 void Game::render(World& world) {
-
-  // Uint32 last_frame = SDL_GetTicks();
 
   renderer_.render_map(*world.player_);
   
@@ -105,6 +107,10 @@ void Game::render(World& world) {
   }
 
   for(const auto& p: world.enemy_projectiles_){
+    renderer_.render(p);
+  }
+
+  for(const auto& p : world.pickups_){
     renderer_.render(p);
   }
 
@@ -137,8 +143,10 @@ void Game::load_level(World& world, int level_id){
 }
 
 void Game::run_game() {
-  ui_manager_.score_str = "0";
-  World world{ui_manager_};
+
+  notify(GameEvent::kGame);
+
+  World world{ui_manager_, sound_manager_};
   load_level(world, 0);
 
   // Game tick rate in ms, 30 ticks per second
@@ -172,12 +180,14 @@ void Game::run_game() {
   }
 }
 
+
 void Game::start(){
   // Random number generator used in enemy AI
   srand(time(NULL));
 
   title_screen_ = true;
   while(open_){
+    notify(GameEvent::kMenu);
     while(title_screen_){
       handle_menu_events();
       render_title();
@@ -194,4 +204,9 @@ void Game::start(){
   renderer_.render_text(closing_message.str(), {150, 300});
   renderer_.render_frame();
   SDL_Delay(1000);
+}
+
+void Game::notify(GameEvent event){
+  ui_manager_.on_notify(event);
+  sound_manager_.on_notify(event);
 }

@@ -5,7 +5,9 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 
+#include "Models.hpp"
 #include "UIManager.hpp"
+#include "SoundManager.hpp"
 #include "World.hpp"
 #include "Renderer.hpp"
 
@@ -27,6 +29,7 @@ private:
   
   Renderer renderer_;
   UIManager ui_manager_;
+  SoundManager sound_manager_;
   
   SDL_Event event_;
 
@@ -39,6 +42,7 @@ private:
   void render_title();
 
   void run_game();
+  void notify(GameEvent event);
 
   // Helper methods for initialization
   Renderer init_renderer();

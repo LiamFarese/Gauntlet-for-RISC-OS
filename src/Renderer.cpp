@@ -3,7 +3,7 @@
 #include "SDL/SDL_video.h"
 
 Renderer::Renderer(SDL_Surface* sprite_sheet, SDL_Surface* screen, SDL_Surface* title_screen, SDL_Surface* logo)
-  :sprite_sheet_(sprite_sheet), screen_(screen), title_screen_(title_screen), logo_(logo), ui_rendered_(0) {
+  :sprite_sheet_(sprite_sheet), screen_(screen), title_screen_(title_screen), logo_(logo) {
   TTF_Init();
   font_ = TTF_OpenFont("<!Gauntlet$Dir>.Font", 20);
   title_font_ = TTF_OpenFont("<!Gauntlet$Dir>.Font", 30);
@@ -18,27 +18,38 @@ Renderer::Renderer()
 }
 
 Renderer::~Renderer() {
-  SDL_FreeSurface(sprite_sheet_);
-  sprite_sheet_ = nullptr;
-  
-  SDL_FreeSurface(screen_);
-  screen_ = nullptr;
-    
-  if (level_background_ != nullptr) {
+  if (sprite_sheet_) {
+    SDL_FreeSurface(sprite_sheet_);
+    sprite_sheet_ = nullptr;
+  }
+
+  if (screen_) {
+    SDL_FreeSurface(screen_);
+    screen_ = nullptr;
+  }
+
+  if (level_background_) {
     SDL_FreeSurface(level_background_);
     level_background_ = nullptr;
   }
 
-  if (title_screen_ != nullptr) {
+  if (title_screen_) {
     SDL_FreeSurface(title_screen_);
     title_screen_ = nullptr;
   }
-    
-  TTF_CloseFont(font_);
-  font_ = nullptr;
+
+  if (font_) {
+    TTF_CloseFont(font_);
+    font_ = nullptr;
+  }
+
+  if (title_font_) {
+    TTF_CloseFont(title_font_);
+    title_font_ = nullptr;
+  }
 }
 
-void Renderer::destory(){
+void Renderer::destroy(){
   this->~Renderer();
 }
 
@@ -86,6 +97,19 @@ void Renderer::render(const Projectile& projectile) const {
   SDL_BlitSurface(sprite_sheet_, &sprite, screen_, &position);
 }
 
+void Renderer::render(const Pickup& pickup) const {
+  SDL_Rect sprite   = pickup.sprite_;
+  SDL_Rect position = pickup.position_; 
+  if(clip(position)){
+    return;
+  }
+  // Camera offset
+  position.x -= camera_.x;
+  position.y -= camera_.y;
+  SDL_BlitSurface(sprite_sheet_, &sprite, screen_, &position);
+}
+
+// Renders the level background
 void Renderer::render_map(const Player& player) {
  // Calculate the center of the camera
   Sint16 camera_centre_x = camera_.x + camera_.w / 2;
@@ -117,6 +141,8 @@ void Renderer::render_map(const Player& player) {
   SDL_BlitSurface(level_background_, &camera_, screen_, NULL);
 }
 
+
+// Renders splash art
 void Renderer::render_title() const{
   SDL_Rect position {0,0,960,640};
   SDL_Rect dest {0,0,960,640};
@@ -124,45 +150,49 @@ void Renderer::render_title() const{
 
 }
 
+// Renders the entire sidebar
 void Renderer::render_sidebar(UIManager& ui_manager) {
-  // clear background and set it to black
-  SDL_Rect ui {960,100, 240, 640};
+  // Clear background and set it to black
+  SDL_Rect ui {960, 0, 240, 640};
   SDL_FillRect(screen_, &ui, SDL_MapRGB(screen_->format, 0, 0, 0));
 
   render_static_ui();
 
+  // Determine y-coordinate for health and score display based on player class
   Sint16 score_and_health_y = 0;
-  switch(ui_manager.player_class_){
-    case PlayerClass::kWarrior: score_and_health_y = 222; break; 
-    case PlayerClass::kValkyrie: score_and_health_y = 344; break; 
-    case PlayerClass::kWizard: score_and_health_y = 466; break; 
-    case PlayerClass::kElf: score_and_health_y = 588; break; 
+  switch(ui_manager.player_class_) {
+    case PlayerClass::kWarrior: score_and_health_y = 222; break;
+    case PlayerClass::kValkyrie: score_and_health_y = 344; break;
+    case PlayerClass::kWizard: score_and_health_y = 466; break;
+    case PlayerClass::kElf: score_and_health_y = 588; break;
     default: break;
   }
 
   std::string default_values = "000";
-  if(ui_manager.game_running){
-    
+  if (ui_manager.game_running) {
+    // Render the player's health and score
     render_text(ui_manager.health_str, {1110, score_and_health_y});
     render_text(ui_manager.score_str, {1030, score_and_health_y});
 
+    // Render default values for other classes
     Sint16 y_location = 222;
-    for(int i = 0; i < 4; i++){
-      render_text("health:", {1110, static_cast<Sint16>(y_location-30)});
-      render_text("score:", {1030, static_cast<Sint16>(y_location-30)});
-      if(i != static_cast<Sint16>(ui_manager.player_class_)){
+    for (int i = 0; i < 4; ++i) {
+      render_text("health:", {1110, static_cast<Sint16>(y_location - 30)});
+      render_text("score:", {1030, static_cast<Sint16>(y_location - 30)});
+      if (i != static_cast<Sint16>(ui_manager.player_class_)) {
         render_text(default_values, {1110, y_location});
         render_text(default_values, {1030, y_location});
       }
       y_location += 122;
     }
   } else {
+    // Game is not running, show prompt to press a key to play
     Sint16 y_location = 222;
     std::string prompt = "press          to play";
-    std::stringstream number;
-    SDL_Rect location{1075};
-    for(int i = 0; i < 4; i++){
+    SDL_Rect location {1075, 0, 0, 0}; // y will be set in the loop
+    for (int i = 0; i < 4; ++i) {
       SDL_Color class_color;
+      std::stringstream number;
       switch (i) {
         case 0: class_color = {255, 0, 0}; number << 1; break;
         case 1: class_color = {0, 0, 255}; number << 2; break;
@@ -171,16 +201,21 @@ void Renderer::render_sidebar(UIManager& ui_manager) {
       }
       render_text(prompt, {1020, y_location});
       location.y = y_location;
-      SDL_Surface* message = TTF_RenderText_Solid(title_font_, number.str().c_str(), class_color);
-
-      SDL_BlitSurface(message, nullptr, screen_, &location);
-      SDL_FreeSurface( message );
+      render_class_text(number, location, class_color);
       number.str(std::string());
       y_location += 122;
     }
   }
 }
 
+// Renders text using the class colors and font size
+void Renderer::render_class_text(const std::stringstream& message_string, SDL_Rect location, SDL_Color color) {
+  SDL_Surface* message = TTF_RenderText_Solid(title_font_, message_string.str().c_str(), color);
+  SDL_BlitSurface(message, nullptr, screen_, &location);
+  SDL_FreeSurface(message);
+}
+
+// Generic method for rendering standard white text
 void Renderer::render_text(const std::string& message_string, SDL_Rect location) {
   SDL_Surface* message = TTF_RenderText_Solid(font_, message_string.c_str(), text_color_);
 
@@ -188,14 +223,17 @@ void Renderer::render_text(const std::string& message_string, SDL_Rect location)
   SDL_FreeSurface( message );
 }
 
+// Called at the end of a frame to flip the buffer
 void Renderer::render_frame() const {
   SDL_Flip(screen_);
 }
 
+// Makes sure the frame returned by sprite.get_frame() is not empty
 bool Renderer::is_zero(SDL_Rect& sprite) const {
   return sprite.h == 0 && sprite.w == 0;
 }
 
+// Used to determine if entity is offscreen, therefore skip rendering
 bool Renderer::clip(SDL_Rect& location) const {
   return location.y > camera_.y + camera_.h ||
          location.x > camera_.x + camera_.w ||
@@ -203,8 +241,10 @@ bool Renderer::clip(SDL_Rect& location) const {
          location.x + 32 < camera_.x;
 }
 
+// Renders part of the ui that never changes
 void Renderer::render_static_ui() {
 
+  // Render logo
   SDL_Rect src {0,0,220,56};
   SDL_Rect location {970, 10, 220, 56};
   SDL_BlitSurface(logo_, &src , screen_, &location);
