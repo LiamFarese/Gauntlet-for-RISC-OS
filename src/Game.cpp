@@ -1,10 +1,16 @@
 #include "Game.hpp"
-#include "Models.hpp"
 
 #include <iostream>
+#include <memory>
 
 Game::Game() 
-  : renderer_(init_renderer()), ui_manager_() {;;
+  : renderer_(init_renderer()), 
+    ui_manager_(std::make_shared<UIManager>()), 
+    sound_manager_(std::make_shared<SoundManager>()), 
+    level_manager_(std::make_shared<LevelManager>()){
+      subject_.addObserver(ui_manager_);
+      subject_.addObserver(sound_manager_);
+      subject_.addObserver(level_manager_);
 }
 
 Renderer Game::init_renderer() {
@@ -35,7 +41,7 @@ Renderer Game::init_renderer() {
 
 Game::~Game() {
   renderer_.destroy();
-  sound_manager_.destroy();
+  sound_manager_->destroy();
   TTF_Quit();
   SDL_Quit();
 }
@@ -44,7 +50,7 @@ void Game::handle_game_events(World& world) {
   while (SDL_PollEvent(&event_)) {
   
     if (event_.type == SDL_QUIT || (event_.type == SDL_KEYDOWN && event_.key.keysym.sym == SDLK_ESCAPE)) {
-      ui_manager_.game_running  = false;
+      ui_manager_->game_running  = false;
       running_ = false;
       title_screen_ = true;
     } else {
@@ -62,26 +68,26 @@ void Game::handle_menu_events(){
         if (event_.type == SDL_KEYDOWN) {
           switch (event_.key.keysym.sym) {
             case SDLK_1:
-              ui_manager_.configure_player_class(PlayerClass::kWarrior);
-              sound_manager_.configure_player_sounds(PlayerClass::kWarrior);
+              ui_manager_->configure_player_class(PlayerClass::kWarrior);
+              sound_manager_->configure_player_sounds(PlayerClass::kWarrior);
               running_ = true;
               title_screen_ = false; 
               break;
             case SDLK_2:
-              ui_manager_.configure_player_class(PlayerClass::kValkyrie);
-              sound_manager_.configure_player_sounds(PlayerClass::kValkyrie);
+              ui_manager_->configure_player_class(PlayerClass::kValkyrie);
+              sound_manager_->configure_player_sounds(PlayerClass::kValkyrie);
               running_ = true;
               title_screen_ = false; 
               break;
             case SDLK_3:
-              ui_manager_.configure_player_class(PlayerClass::kWizard);
-              sound_manager_.configure_player_sounds(PlayerClass::kWizard);
+              ui_manager_->configure_player_class(PlayerClass::kWizard);
+              sound_manager_->configure_player_sounds(PlayerClass::kWizard);
               running_ = true;
               title_screen_ = false; 
               break;
             case SDLK_4:
-              ui_manager_.configure_player_class(PlayerClass::kElf);
-              sound_manager_.configure_player_sounds(PlayerClass::kElf);
+              ui_manager_->configure_player_class(PlayerClass::kElf);
+              sound_manager_->configure_player_sounds(PlayerClass::kElf);
               running_ = true; 
               title_screen_ = false; 
               break;
@@ -114,7 +120,7 @@ void Game::render(World& world) {
     renderer_.render(p);
   }
 
-  renderer_.render_sidebar(ui_manager_);
+  renderer_.render_sidebar(*ui_manager_);
 
   // Update the screen   
   renderer_.render_frame();
@@ -122,18 +128,12 @@ void Game::render(World& world) {
 
 void Game::render_title() {
   renderer_.render_title();
-  renderer_.render_sidebar(ui_manager_);
+  renderer_.render_sidebar(*ui_manager_);
   renderer_.render_frame();
 }
 
-void Game::load_level(World& world, int level_id){
-  std::string level_name {};
-  switch(level_id){
-    case (0):
-      world.load_level(0); 
-      level_name = world.map_.level_name;
-      break;
-  }
+void Game::load_level(World& world){
+  std::string level_name = level_manager_->load_level(world, *ui_manager_);
 
   SDL_Surface* image = IMG_Load(level_name.c_str());
 
@@ -146,11 +146,17 @@ void Game::run_game() {
 
   notify(GameEvent::kGame);
 
-  World world{ui_manager_, sound_manager_};
-  load_level(world, 0);
+  World world{ui_manager_->player_class_};
+
+  // Add observers to player
+  world.player_->subject_.addObserver(ui_manager_);
+  world.player_->subject_.addObserver(sound_manager_);
+  world.player_->subject_.addObserver(level_manager_);
+
+  load_level(world);
 
   // Game tick rate in ms, 30 ticks per second
-  constexpr Uint32 kTickRate {1000/30};
+  constexpr Uint32 kTickRate {1000/60};
 
   // Time at the start of the last game loop
   Uint32 previous {SDL_GetTicks()};
@@ -161,6 +167,12 @@ void Game::run_game() {
   Uint32 frame_time  {0};
   
   while (running_) {
+
+    if(level_manager_->level_exited){
+      load_level(world);
+      level_manager_->level_exited = false;
+    }
+
     current = SDL_GetTicks();
 
     // Time the last frame took to render
@@ -188,6 +200,9 @@ void Game::start(){
   title_screen_ = true;
   while(open_){
     notify(GameEvent::kMenu);
+    std::cout << level_manager_->level_id << '\n';
+    std::cout << level_manager_->level_exited << '\n';
+
     while(title_screen_){
       handle_menu_events();
       render_title();
@@ -207,6 +222,5 @@ void Game::start(){
 }
 
 void Game::notify(GameEvent event){
-  ui_manager_.on_notify(event);
-  sound_manager_.on_notify(event);
+  subject_.notify(event);
 }

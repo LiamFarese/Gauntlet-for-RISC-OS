@@ -25,7 +25,7 @@ public:
 
 private:
 
-  static constexpr int speed_ {15};
+  static constexpr int speed_ {8};
   void move();
 
 };

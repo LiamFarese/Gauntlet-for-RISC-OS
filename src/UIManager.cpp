@@ -1,5 +1,25 @@
 #include "UIManager.hpp"
 
+// Configure the player's class and associated attributes
+void UIManager::configure_player_class(PlayerClass player_class) {
+  player_class_ = player_class;
+  switch (player_class) {
+    case PlayerClass::kWarrior:
+    case PlayerClass::kValkyrie:
+      damage_per_hit_ = 3;
+      health_ = 500;
+      break;
+    case PlayerClass::kWizard:
+      damage_per_hit_ = 8;
+      health_ = 500;
+      break;
+    case PlayerClass::kElf:
+      damage_per_hit_ = 10;
+      health_ = 500;
+      break;
+  }
+}
+
 void UIManager::on_notify(GameEvent event){
   switch (event) {
     case GameEvent::kPlayerDamage:
@@ -33,6 +53,7 @@ void UIManager::on_notify(GameEvent event){
       game_running = false; 
       break;
     case GameEvent::kGame:
+      reset_player_stats();
       game_running = true;
       break;
     case GameEvent::kLevelExit:

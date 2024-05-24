@@ -20,7 +20,7 @@ Enemy::Enemy(EnemyClass enemy_class, SDL_Rect position)
   position_ = position;
   last_position_ = position;
   sprite_.set_animation(AnimationState::kMovingRight);
-  movespeed_ = 4;
+  movespeed_ = 2;
   id_ = ID++;
 };
 

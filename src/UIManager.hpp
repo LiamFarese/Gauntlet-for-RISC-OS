@@ -12,12 +12,13 @@ class UIManager : public IObserver {
 public:
   // Constructor
   UIManager()
-    : health_str("000"), score_str("000"), game_running(false),
+    : health_str_("000"), score_str_("000"), game_running(false),
       health_(0), score_(0), damage_per_hit_(0), health_potions_(0), keys_(0) {}
 
-  // Used for rendering the health and score to the sidebar
-  std::string health_str;
-  std::string score_str;
+  // Used for rendering the health, score and level name to the sidebar
+  std::string health_str_;
+  std::string score_str_;
+  std::string level_name_;
 
   // UI is rendered differently depending on if the game is running or not
   bool game_running;
@@ -45,33 +46,14 @@ private:
   std::stringstream buff_;
 };
 
-// Configure the player's class and associated attributes
-inline void UIManager::configure_player_class(PlayerClass player_class) {
-  player_class_ = player_class;
-  switch (player_class) {
-    case PlayerClass::kWarrior:
-    case PlayerClass::kValkyrie:
-      damage_per_hit_ = 3;
-      health_ = 500;
-      break;
-    case PlayerClass::kWizard:
-      damage_per_hit_ = 8;
-      health_ = 500;
-      break;
-    case PlayerClass::kElf:
-      damage_per_hit_ = 10;
-      health_ = 500;
-      break;
-  }
-}
-
+// Ensure that player stats are reset after reselecting in title screen
 inline void UIManager::reset_player_stats(){
   score_          = 0;
-  health_         = 0;
+  health_         = 500;
   health_potions_ = 0;
   keys_           = 0;
-  health_str      = "000";
-  score_str       = "000";
+  health_str_     = "000";
+  score_str_      = "000";
 }
 
 // Update the player's health and its string representation
@@ -80,7 +62,7 @@ inline void UIManager::update_health(int health) {
   buff_.str(std::string());
   buff_.clear();
   buff_ << health_;
-  health_str = buff_.str();
+  health_str_ = buff_.str();
 }
 
 // Update the player's score and its string representation
@@ -89,5 +71,5 @@ inline void UIManager::update_score(int points) {
   buff_.str(std::string());
   buff_.clear();
   buff_ << score_;
-  score_str = buff_.str();
+  score_str_ = buff_.str();
 }

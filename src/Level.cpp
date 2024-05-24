@@ -41,7 +41,7 @@ namespace {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 70, 7, 7, 7, 7, 7, 70},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 70, 7, 7, 7, 7, 7, 70},
     {1, 1, 1, 1, 1, 71, 75, 77, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 70, 7, 7, 7, 7, 7, 70},
-    {1, 1, 1, 1, 1, 70, 7, 68, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 78, 7, 7, 7, 7, 7, 70},
+    {1, 1, 1, 1, 1, 70, 7, 7, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 78, 7, 7, 7, 7, 7, 70},
     {1, 1, 1, 1, 1, 70, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 66, 7, 7, 7, 7, 7, 70},
     {1, 1, 1, 1, 1, 70, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 70},
     {1, 1, 1, 1, 1, 70, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 70},
@@ -78,6 +78,27 @@ namespace {
         enemies.emplace_back(Enemy{EnemyClass::kGhost, {744, 420, 32, 32}});
         enemies.emplace_back(Enemy{EnemyClass::kGhost, {784, 420, 32, 32}});
         enemies.emplace_back(Enemy{EnemyClass::kGhost, {824, 420, 32, 32}});
+        // Second area
+        enemies.emplace_back(Enemy{EnemyClass::kGhost, {330, 800, 32, 32}});
+        enemies.emplace_back(Enemy{EnemyClass::kGhost, {232, 800, 32, 32}});
+        enemies.emplace_back(Enemy{EnemyClass::kGhost, {264, 800, 32, 32}});
+        enemies.emplace_back(Enemy{EnemyClass::kGhost, {296, 800, 32, 32}});
+        enemies.emplace_back(Enemy{EnemyClass::kGhost, {264, 850, 32, 32}});
+        enemies.emplace_back(Enemy{EnemyClass::kGhost, {304, 850, 32, 32}});
+        enemies.emplace_back(Enemy{EnemyClass::kGhost, {344, 850, 32, 32}});
+        enemies.emplace_back(Enemy{EnemyClass::kGhost, {384, 850, 32, 32}});
+        enemies.emplace_back(Enemy{EnemyClass::kGhost, {424, 850, 32, 32}});
+        enemies.emplace_back(Enemy{EnemyClass::kGhost, {464, 850, 32, 32}});
+        enemies.emplace_back(Enemy{EnemyClass::kGhost, {504, 860, 32, 32}});
+        enemies.emplace_back(Enemy{EnemyClass::kGhost, {544, 860, 32, 32}});
+        // Third area
+        // enemies.emplace_back(Enemy{EnemyClass::kGhost, {584, 420, 32, 32}});
+        // enemies.emplace_back(Enemy{EnemyClass::kGhost, {624, 420, 32, 32}});
+        // enemies.emplace_back(Enemy{EnemyClass::kGhost, {664, 420, 32, 32}});
+        // enemies.emplace_back(Enemy{EnemyClass::kGhost, {704, 420, 32, 32}});
+        // enemies.emplace_back(Enemy{EnemyClass::kGhost, {744, 420, 32, 32}});
+        // enemies.emplace_back(Enemy{EnemyClass::kGhost, {784, 420, 32, 32}});
+        // enemies.emplace_back(Enemy{EnemyClass::kGhost, {824, 420, 32, 32}});
         break;
     }
     return enemies;
@@ -97,7 +118,12 @@ Level::Map Level::load_level(int level_number) {
       map.player_position = {96, 128, 32, 32};
       map.player_state = AnimationState::kIdleDown;
       map.enemies = std::move(init_enemies(0));
-      map.pickups = {Pickup{PickupType::kPoints, {600, 33, 32, 32}}};
+      map.pickups = {Pickup{PickupType::kPoints, {600, 33, 32, 32}},
+                     Pickup{PickupType::kPoints, {1216, 544, 32, 32}},
+                     Pickup{PickupType::kPoints, {1216, 1312, 32, 32}},
+                     Pickup{PickupType::kPoints, {32, 928, 32, 32}},
+                     Pickup{PickupType::kExit, {192, 1152, 32, 32}}
+      };
       break;
     default:
       break;

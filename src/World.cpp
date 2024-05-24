@@ -1,8 +1,9 @@
 #include "World.hpp"
+#include "Models.hpp"
 #include "Vector2.hpp"
 
-World::World(UIManager& ui_manager, SoundManager& sound_manager_) 
-  : sound_manager_(sound_manager_), player_(new Player(ui_manager.player_class_, ui_manager, sound_manager_)) {
+World::World(PlayerClass player_class) 
+  : player_(new Player(player_class)) {
 }
 
 World::~World() {

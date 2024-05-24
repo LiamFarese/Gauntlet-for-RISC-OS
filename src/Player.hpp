@@ -8,6 +8,7 @@
 #include "Pickup.hpp"
 #include "Projectile.hpp"
 #include "Sprite.hpp"
+#include "Subject.hpp"
 
 class World;
 class SoundManager;
@@ -16,7 +17,7 @@ class UIManager;
 class Player : public Actor {
 
 public:
-  Player(PlayerClass player_class, UIManager& ui_manager, SoundManager& sound_manager);
+  Player(PlayerClass player_class);
 
   // Method to handle user inputs
   void handle_inputs(const SDL_Event& event);
@@ -31,11 +32,13 @@ public:
   void pickup_item(Pickup pickup);
   void notify(GameEvent event);
 
+  Subject subject_;
+
 
 private:
+
   // Player attributes
   PlayerClass player_class_;  // The class/type of the player
-  UIManager& ui_manager_;     // Reference to the UI manager
   int damage_per_hit;         // Damage taken per hit
 
   // Player state
@@ -51,6 +54,6 @@ private:
   // Private method to handle health ticking
   void tick_health();
 
-  // Temporary
-  SoundManager& sound_manager_;
+  // helper function to initalise stats
+  void init_stats();
 };

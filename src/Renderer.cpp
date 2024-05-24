@@ -170,9 +170,14 @@ void Renderer::render_sidebar(UIManager& ui_manager) {
 
   std::string default_values = "000";
   if (ui_manager.game_running) {
+    // Render level name
+    std::stringstream title;
+    title << ui_manager.level_name_;
+    render_class_text(title, {1020,100}, {255,255,255});
+
     // Render the player's health and score
-    render_text(ui_manager.health_str, {1110, score_and_health_y});
-    render_text(ui_manager.score_str, {1030, score_and_health_y});
+    render_text(ui_manager.health_str_, {1110, score_and_health_y});
+    render_text(ui_manager.score_str_, {1030, score_and_health_y});
 
     // Render default values for other classes
     Sint16 y_location = 222;

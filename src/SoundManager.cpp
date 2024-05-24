@@ -91,6 +91,7 @@ void SoundManager::on_notify(GameEvent event){
       play_sound(level_exit_sound_);
       break;
     case GameEvent::kPlayerTickDamage:
+      // No case
       break;
     }
 }

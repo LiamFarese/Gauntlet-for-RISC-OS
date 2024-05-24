@@ -5,31 +5,9 @@
 #include "UIManager.hpp"
 #include "World.hpp"
 
-Player::Player(PlayerClass player_class, UIManager& ui_manager, SoundManager& sound_manager) 
-  : player_class_(player_class), ui_manager_(ui_manager), score_(0), health_(500), health_timer_(0),sound_manager_(sound_manager) {
-  switch (player_class_) {
-    case PlayerClass::kWarrior: 
-      sprite_ = {SpriteClass::kWarrior};
-      damage_per_hit = 3;
-      movespeed_ = 7;
-      break;
-    case PlayerClass::kValkyrie: 
-      sprite_ = {SpriteClass::kValkyrie};
-      damage_per_hit = 5;
-      movespeed_ = 7; 
-      break;
-    case PlayerClass::kWizard: 
-      sprite_ = {SpriteClass::kWizard}; 
-      damage_per_hit = 8;
-      movespeed_ = 9;      
-      break;
-    case PlayerClass::kElf: 
-      sprite_ = {SpriteClass::kElf};
-      damage_per_hit = 10;
-      movespeed_ = 10;
-      fire_rate_ = 300;
-      break;
-  }
+Player::Player(PlayerClass player_class) 
+  : player_class_(player_class), score_(0), health_(500), health_timer_(0) {
+  init_stats();
 }
 
 void Player::handle_inputs(const SDL_Event& event) {
@@ -189,6 +167,31 @@ void Player::pickup_item(Pickup pickup){
 }
 
 void Player::notify(GameEvent event){
-  sound_manager_.on_notify(event);
-  ui_manager_.on_notify(event);
+  subject_.notify(event);
+}
+
+void Player::init_stats(){
+  switch (player_class_) {
+    case PlayerClass::kWarrior: 
+      sprite_ = {SpriteClass::kWarrior};
+      damage_per_hit = 3;
+      movespeed_ = 3;
+      break;
+    case PlayerClass::kValkyrie: 
+      sprite_ = {SpriteClass::kValkyrie};
+      damage_per_hit = 5;
+      movespeed_ = 3; 
+      break;
+    case PlayerClass::kWizard: 
+      sprite_ = {SpriteClass::kWizard}; 
+      damage_per_hit = 8;
+      movespeed_ = 4;      
+      break;
+    case PlayerClass::kElf: 
+      sprite_ = {SpriteClass::kElf};
+      damage_per_hit = 10;
+      movespeed_ = 5;
+      fire_rate_ = 100;
+      break;
+  }
 }

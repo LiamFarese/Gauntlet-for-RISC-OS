@@ -20,11 +20,8 @@ class World {
 
 public:
   // Constructor and destructor
-  World(UIManager& ui_manager, SoundManager& sound_manager_);
+  World(PlayerClass player_class);
   ~World();
-
-  // Temporary solution storing a reference to soundmanager
-  SoundManager& sound_manager_;
 
   // Method to update the world state, takes camera as a parameter to cull updates on offscreen enemies
   void update(SDL_Rect& camera);
