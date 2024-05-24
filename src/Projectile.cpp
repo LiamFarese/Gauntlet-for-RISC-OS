@@ -1,7 +1,7 @@
 #include "Projectile.hpp"
 
 Projectile::Projectile(SDL_Rect position, Direction direction, SpriteClass sprite_class, int id)
-  :position_(position), direction_(direction), sprite_(sprite_class), collided_(false), destroyed_(false), id_(id) {
+  : sprite_(sprite_class), position_(position), direction_(direction), collided_(false), destroyed_(false), id_(id) {
     if(sprite_class == SpriteClass::kWarrior){
       sprite_.set_animation(AnimationState::kAxe);
     } else {

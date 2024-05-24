@@ -12,9 +12,13 @@ enum class GameEvent {
   kHealthPotionPickup,
   kDestroyPotionPickup,
   kKeyPickup,
+  kOpenDoor,
   kMenu,
   kGame,
-  kLevelExit
+  kLevelExit,
+  KGameEnd,
+  kPlayerDeath,
+  kQuit
 };
 
 // Enum to define different player classes

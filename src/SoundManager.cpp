@@ -22,15 +22,56 @@ SoundManager::SoundManager() {
   // Load Sound effects
   monster_death_ = Mix_LoadWAV("<!Gauntlet$Dir>.music.monster_death");
   collect_points_sound_ = Mix_LoadWAV("<!Gauntlet$Dir>.music.collect_points");
+  collect_food_sound_ = Mix_LoadWAV("<!Gauntlet$Dir>.music.collectfood");
   level_exit_sound_ = Mix_LoadWAV("<!Gauntlet$Dir>.music.level_exit");
+  collect_key_ = Mix_LoadWAV("<!Gauntlet$Dir>.music.collectkey");
+  open_door_ = Mix_LoadWAV("<!Gauntlet$Dir>.music.opendoor");
 }
 
 SoundManager::~SoundManager() {
-  Mix_FreeMusic(menu_music_);
-  menu_music_ = nullptr;
+  // Free music
+  if (menu_music_) {
+    Mix_FreeMusic(menu_music_);
+    menu_music_ = nullptr;
+  }
 
-  Mix_FreeMusic(background_music_);
-  background_music_ = nullptr;
+  if (background_music_) {
+    Mix_FreeMusic(background_music_);
+    background_music_ = nullptr;
+  }
+
+  // Free sound effects
+  if (monster_death_) {
+    Mix_FreeChunk(monster_death_);
+    monster_death_ = nullptr;
+  }
+
+  if (collect_points_sound_) {
+    Mix_FreeChunk(collect_points_sound_);
+    collect_points_sound_ = nullptr;
+  }
+
+  if (collect_food_sound_) {
+    Mix_FreeChunk(collect_food_sound_);
+    collect_food_sound_ = nullptr;
+  }
+
+  if (level_exit_sound_) {
+    Mix_FreeChunk(level_exit_sound_);
+    level_exit_sound_ = nullptr;
+  }
+  
+  if (collect_key_) {
+    Mix_FreeChunk(collect_key_);
+    collect_key_ = nullptr;
+  }
+
+  if (open_door_) {
+    Mix_FreeChunk(open_door_);
+    collect_key_ = nullptr;
+  }
+
+  // Close SDL Mixer
   Mix_CloseAudio();
 }
 
@@ -70,7 +111,7 @@ void SoundManager::on_notify(GameEvent event){
       play_sound(collect_points_sound_);
       break;
     case GameEvent::kHealthPickup: 
-      // TODO: implement health pickup
+      play_sound(collect_food_sound_);
       break;
     case GameEvent::kHealthPotionPickup:
       // TODO: implement potions
@@ -79,7 +120,7 @@ void SoundManager::on_notify(GameEvent event){
       // TODO: implement potions
       break;
     case GameEvent::kKeyPickup:
-      // TODO: implement keys
+      play_sound(collect_key_);
       break;
     case GameEvent::kMenu:
       play_music(menu_music_);
@@ -92,6 +133,17 @@ void SoundManager::on_notify(GameEvent event){
       break;
     case GameEvent::kPlayerTickDamage:
       // No case
+      break;
+    case GameEvent::KGameEnd:
+      play_music(menu_music_);
+      break;
+    case GameEvent::kPlayerDeath:
+      // TODO: death sound
+      break;
+    case GameEvent::kQuit:
+      break;
+    case GameEvent::kOpenDoor:
+      play_sound(open_door_);
       break;
     }
 }

@@ -12,13 +12,17 @@ class UIManager : public IObserver {
 public:
   // Constructor
   UIManager()
-    : health_str_("000"), score_str_("000"), game_running(false),
-      health_(0), score_(0), damage_per_hit_(0), health_potions_(0), keys_(0) {}
+    : health_str_("000"), score_str_("000"), health_potions_(0), keys_(3), 
+      game_running(false), health_(0), score_(0), damage_per_hit_(0) {}
 
   // Used for rendering the health, score and level name to the sidebar
   std::string health_str_;
   std::string score_str_;
   std::string level_name_;
+
+  // Represents the number of keys and potions the player has
+  int health_potions_;
+  int keys_;
 
   // UI is rendered differently depending on if the game is running or not
   bool game_running;
@@ -37,10 +41,6 @@ private:
   int health_;
   int score_;
   int damage_per_hit_;
-
-  // Represents the number of keys and potions the player has
-  int health_potions_;
-  int keys_;
 
   // Buffer used to convert health and score to strings to display
   std::stringstream buff_;

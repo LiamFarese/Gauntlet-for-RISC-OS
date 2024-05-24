@@ -10,6 +10,7 @@
 #include "Player.hpp"
 #include "Projectile.hpp"
 #include "Actor.hpp"
+#include "SDL/SDL_video.h"
 #include "UIManager.hpp"
 
 // Renderer class responsible for all rendering operations
@@ -17,7 +18,8 @@ class Renderer {
 
 public:
   // Constructors and destructor
-  Renderer(SDL_Surface* sprite_sheet, SDL_Surface* screen, SDL_Surface* title_screen, SDL_Surface* logo);
+  Renderer(SDL_Surface* sprite_sheet, SDL_Surface* screen, SDL_Surface* title_screen,
+           SDL_Surface* logo, SDL_Surface* key);
   Renderer();
   ~Renderer();
 
@@ -26,9 +28,11 @@ public:
 
   // Public methods for rendering various game elements
   void clear();
-  void render(const Actor& actor) const;
-  void render(const Projectile& projectile) const;
-  void render(const Pickup& pickup) const;
+  
+  // Renders all game entities
+  template<typename T>
+  void render(const T& t) const;
+
   void render_map(const Player& player);
   void render_title() const;
   void render_sidebar(UIManager& ui_manager);
@@ -36,10 +40,11 @@ public:
   void render_text(const std::string& message_string, SDL_Rect location);
   void render_frame() const;
 
+  void load_new_level(SDL_Surface* level);
+
   // Public attributes for SDL surfaces and rendering settings
   SDL_Surface* level_background_;
   SDL_Rect camera_ {0, 0, 960, 640};
-
 
 private:
   // Private attributes
@@ -47,6 +52,7 @@ private:
   SDL_Surface* screen_;
   SDL_Surface* title_screen_;
   SDL_Surface* logo_;
+  SDL_Surface* key_;
 
   TTF_Font* font_;
   TTF_Font* title_font_;
@@ -54,7 +60,30 @@ private:
   Uint32 screen_clear_color_;
 
   // Private helper methods
-  void render_static_ui();
+  void render_static_ui() const;
+  void render_keys(UIManager& ui_manager, Sint16 y_location) const;
   bool is_zero(SDL_Rect& sprite) const;
   bool clip(SDL_Rect& location) const;
 };
+
+template<typename T>
+void Renderer::render(const T& t) const {
+  SDL_Rect position = t.get_position();
+
+  if (clip(position)) {
+    return;
+  }
+
+  SDL_Rect sprite = t.get_frame();
+
+  if (is_zero(sprite)) {
+    return;
+  }
+
+  // Camera offset
+  position.x -= camera_.x;
+  position.y -= camera_.y;
+
+  SDL_BlitSurface(sprite_sheet_, &sprite, screen_, &position);
+}
+

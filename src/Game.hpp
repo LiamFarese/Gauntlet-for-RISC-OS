@@ -5,8 +5,9 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 
+#include "GameManager.hpp"
 #include "IObserver.hpp"
-#include "LevelManager.hpp"
+#include "GameManager.hpp"
 #include "Models.hpp"
 #include "Subject.hpp"
 #include "UIManager.hpp"
@@ -26,9 +27,7 @@ public:
 
 private:
 
-  bool open_         {true};
-  bool title_screen_ {false};
-  bool running_      {false};
+  bool open_ {true};
   
   Renderer renderer_;
   Subject subject_;
@@ -36,7 +35,7 @@ private:
   // Observers
   std::shared_ptr<UIManager> ui_manager_;
   std::shared_ptr<SoundManager> sound_manager_;
-  std::shared_ptr<LevelManager> level_manager_;
+  std::shared_ptr<GameManager> game_manager_;
   
   SDL_Event event_;
 

@@ -7,14 +7,13 @@ World::World(PlayerClass player_class)
 }
 
 World::~World() {
-  delete player_;
 }
 
 // Loads information about the level from the Level namespace
 void World::load_level(int level_id){
   map_ = Level::load_level(level_id);
-  player_->position_ = map_.player_position;
-  player_->last_state_ = map_.player_state;
+  player_->set_position(map_.player_position);
+  player_->set_last_state(map_.player_state);
   enemies_ = std::move(map_.enemies);
   pickups_ = std::move(map_.pickups);
 
@@ -29,7 +28,7 @@ void World::update(SDL_Rect& camera) {
   // Update enemies
   for(auto it = enemies_.begin(); it != enemies_.end(); ) {
     it->update(*this);
-    if (it->dead_) {
+    if (it->is_dead()) {
       it = enemies_.erase(it);
     } else {
       ++it;
@@ -61,10 +60,13 @@ void World::update(SDL_Rect& camera) {
 
 template<typename T, typename C>
 bool World::check_collisions(const T& a, const C& b) const {
-  if(a.position_.x + a.position_.w -1 < b.position_.x ||
-    a.position_.x > b.position_.x + b.position_.w -1 ||
-    a.position_.y + a.position_.h -1 < b.position_.y ||
-    a.position_.y > b.position_.y + b.position_.h -1) {
+  SDL_Rect a_position = a.get_position();
+  SDL_Rect b_position = b.get_position();
+
+  if(a_position.x + a_position.w -1 < b_position.x ||
+    a_position.x > b_position.x + b_position.w -1 ||
+    a_position.y + a_position.h -1 < b_position.y ||
+    a_position.y > b_position.y + b_position.h -1) {
       return false;
     }
   return true;
@@ -75,12 +77,14 @@ bool World::check_collisions(const T& a, const C& b) const {
 // that tiles the entity occupies are not true (blocked)
 template<typename T>
 bool World::wall_collision(const T& t) const {
-  // If entity isn't perfectly on a tile it will check the next tile in the direction
-  int y_overshot = t.position_.y % 32;
-  int x_overshot = t.position_.x % 32;
 
-  int y_index = t.position_.y / 32;
-  int x_index = t.position_.x / 32;
+  SDL_Rect p = t.get_position();
+  // If entity isn't perfectly on a tile it will check the next tile in the direction
+  int y_overshot = p.y % 32;
+  int x_overshot = p.x % 32;
+
+  int y_index = p.y / 32;
+  int x_index = p.x / 32;
 
   std::vector<const std::vector<bool>*> collided_grid;
 
@@ -107,17 +111,40 @@ bool World::wall_collision(const T& t) const {
   return false;
 }
 
+bool World::collide_door(const Player& player, const Door& door) const {
+  SDL_Rect player_location = player_->get_position();
+  for(const auto& rect : door.Location){
+    if(!(player_location.x + player_location.w -1 < rect.x ||
+        player_location.x > rect.x + rect.w -1 ||
+        rect.y + player_location.h -1 < rect.y ||
+        rect.y > rect.y + rect.h -1)) {
+          return true;
+      }
+  }
+  return false;
+}
+
 void World::handle_collisions() {
 
   // Handle Player-Wall collision
   if(wall_collision(*player_)){
-    player_->position_ = player_->last_position_;
+    player_->set_position(player_->get_last_position());
+  }
+
+  // Player colliding with door
+  for(auto door = doors_.begin(); door != doors_.end();){
+    if(collide_door(*player_, *door) && player_->open_door()){
+      door = doors_.erase(door);
+      player_->notify(GameEvent::kOpenDoor);
+    } else {
+      ++door;
+    }
   }
 
   // Handle enemy-wall collision
   for (auto enemy = enemies_.begin(); enemy != enemies_.end(); ++enemy) {
     if (wall_collision(*enemy)) {
-      enemy->position_ = enemy->last_position_;
+      enemy->set_position(enemy->get_last_position());
     }
   }
   
@@ -154,7 +181,7 @@ void World::handle_collisions() {
   for (auto it = player_projectiles_.begin(); it != player_projectiles_.end(); ) {
     bool projectile_removed = false;
     for (auto it_enemy = enemies_.begin(); it_enemy != enemies_.end(); ++it_enemy) {
-      if (!it_enemy->dying_ && check_collisions(*it, *it_enemy)) {
+      if (!it_enemy->is_dying() && check_collisions(*it, *it_enemy)) {
         it = player_projectiles_.erase(it);
         it_enemy->death();
         player_->notify(GameEvent::kEnemyDestroyed);
@@ -184,7 +211,7 @@ void World::handle_collisions() {
 
   // Handle collisions between player and enemies
   for (auto enemy = enemies_.begin(); enemy != enemies_.end(); ) {
-    if (!enemy->dying_ && check_collisions(*player_, *enemy)) {
+    if (!enemy->is_dying() && check_collisions(*player_, *enemy)) {
       player_->damage();
       player_->notify(GameEvent::kEnemyDestroyed);
       enemy->death();

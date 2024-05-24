@@ -57,7 +57,21 @@ void UIManager::on_notify(GameEvent event){
       game_running = true;
       break;
     case GameEvent::kLevelExit:
-      // TODO: implement next level
+      // No action
+      break;
+    case GameEvent::KGameEnd:
+      reset_player_stats();
+      game_running = false;
+      level_name_ = "";
+      break;
+    case GameEvent::kPlayerDeath:
+      game_running = false;
+      reset_player_stats();
+      break;
+    case GameEvent::kQuit:
+      break;
+    case GameEvent::kOpenDoor:
+      keys_--;
       break;
     }
 }

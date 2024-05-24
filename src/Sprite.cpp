@@ -1,4 +1,5 @@
 #include "Sprite.hpp"
+#include "Models.hpp"
 
 Sprite::Sprite(SpriteClass sprite_class)
   : sprite_class_(sprite_class) {
@@ -44,6 +45,29 @@ void Sprite::set_animation(AnimationState state) {
     }else{
       current_frame_ = 0; // Reset to the first frame
     }
+  }
+}
+
+void Sprite::set_firing_animation(Direction direction){
+  switch (direction) {
+    case Direction::kUp:
+      set_animation(AnimationState::kMovingUp); break;
+    case Direction::kDown:
+      set_animation(AnimationState::kMovingDown); break;
+    case Direction::kLeft:
+      set_animation(AnimationState::kMovingLeft); break;
+    case Direction::kRight:
+      set_animation(AnimationState::kMovingRight); break;
+    case Direction::kUpRight:
+      set_animation(AnimationState::kMovingUpRight); break;
+    case Direction::kUpLeft:
+      set_animation(AnimationState::kMovingUpLeft); break;
+    case Direction::kDownRight:
+      set_animation(AnimationState::kMovingDownRight); break;
+    case Direction::kDownLeft:
+      set_animation(AnimationState::kMovingDownLeft); break;
+     default:
+      break;
   }
 }
 

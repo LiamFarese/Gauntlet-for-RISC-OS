@@ -28,7 +28,10 @@ private:
   // Generics sounds
   Mix_Chunk* monster_death_;
   Mix_Chunk* collect_points_sound_;
+  Mix_Chunk* collect_food_sound_;
   Mix_Chunk* level_exit_sound_;
+  Mix_Chunk* collect_key_;
+  Mix_Chunk* open_door_;
 
   // Player class dependant sounds
   Mix_Chunk* fire_sound_;

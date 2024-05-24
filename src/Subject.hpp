@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+
 #include "IObserver.hpp"
 
 class Subject {
@@ -15,5 +16,5 @@ public:
   void notify(GameEvent event);
 
 private:
-  std::vector<std::shared_ptr<IObserver>> observers;
+  std::vector<std::shared_ptr<IObserver>> observers_;
 };

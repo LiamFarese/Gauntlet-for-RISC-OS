@@ -1,12 +1,23 @@
 #include "Renderer.hpp"
+#include "Player.hpp"
+#include "SDL/SDL_stdinc.h"
 #include "SDL/SDL_ttf.h"
 #include "SDL/SDL_video.h"
 
-Renderer::Renderer(SDL_Surface* sprite_sheet, SDL_Surface* screen, SDL_Surface* title_screen, SDL_Surface* logo)
-  :sprite_sheet_(sprite_sheet), screen_(screen), title_screen_(title_screen), logo_(logo) {
+// Used to display ui information
+struct ClassInfo {
+  std::string name;
+  SDL_Color color;
+  Sint16 x_location;
+  Sint16 y_location;
+};
+
+Renderer::Renderer(SDL_Surface* sprite_sheet, SDL_Surface* screen, SDL_Surface* title_screen, 
+                   SDL_Surface* logo, SDL_Surface* key)
+  :sprite_sheet_(sprite_sheet), screen_(screen), title_screen_(title_screen), logo_(logo), key_(key) {
   TTF_Init();
-  font_ = TTF_OpenFont("<!Gauntlet$Dir>.Font", 20);
-  title_font_ = TTF_OpenFont("<!Gauntlet$Dir>.Font", 30);
+  font_ = TTF_OpenFont("<!Gauntlet$Dir>.assets.Font", 20);
+  title_font_ = TTF_OpenFont("<!Gauntlet$Dir>.assets.Font", 30);
 
 };
 
@@ -38,6 +49,16 @@ Renderer::~Renderer() {
     title_screen_ = nullptr;
   }
 
+  if (logo_) {
+    SDL_FreeSurface(logo_);
+    logo_ = nullptr;
+  }
+
+  if (key_) {
+    SDL_FreeSurface(key_);
+    key_ = nullptr;
+  }
+
   if (font_) {
     TTF_CloseFont(font_);
     font_ = nullptr;
@@ -57,67 +78,16 @@ void Renderer::clear(){
   SDL_FillRect(screen_, nullptr, screen_clear_color_);
 }
 
-void Renderer::render(const Actor& actor) const {
-  SDL_Rect position = actor.position_;
-
-  if(clip(position)){
-    return;
-  }
-
-  SDL_Rect sprite = actor.sprite_.get_frame();
-
-  if(is_zero(sprite)){
-    return;
-  }
-
-  // Camera offset
-  position.x -= camera_.x;
-  position.y -= camera_.y;
-
-  SDL_BlitSurface(sprite_sheet_, &sprite, screen_, &position);
-}
-
-void Renderer::render(const Projectile& projectile) const {
-
-  SDL_Rect position = projectile.position_;
-
-  if(clip(position)){
-    return;
-  }
-
-  SDL_Rect sprite = projectile.sprite_.get_frame();
-
-  if(is_zero(sprite)){
-    return;
-  }
-
-  // Camera offset
-  position.x -= camera_.x;
-  position.y -= camera_.y;
-  SDL_BlitSurface(sprite_sheet_, &sprite, screen_, &position);
-}
-
-void Renderer::render(const Pickup& pickup) const {
-  SDL_Rect sprite   = pickup.sprite_;
-  SDL_Rect position = pickup.position_; 
-  if(clip(position)){
-    return;
-  }
-  // Camera offset
-  position.x -= camera_.x;
-  position.y -= camera_.y;
-  SDL_BlitSurface(sprite_sheet_, &sprite, screen_, &position);
-}
-
 // Renders the level background
 void Renderer::render_map(const Player& player) {
  // Calculate the center of the camera
   Sint16 camera_centre_x = camera_.x + camera_.w / 2;
   Sint16 camera_centre_y = camera_.y + camera_.h / 2;
 
+  SDL_Rect player_position = player.get_position();
   // Calculate the offset of the player from the camera center
-  Sint16 dx = player.position_.x - camera_centre_x;
-  Sint16 dy = player.position_.y - camera_centre_y;
+  Sint16 dx = player_position.x - camera_centre_x;
+  Sint16 dy = player_position.y - camera_centre_y;
 
   // Update camera position to center on the player
   camera_.x += dx;
@@ -179,6 +149,8 @@ void Renderer::render_sidebar(UIManager& ui_manager) {
     render_text(ui_manager.health_str_, {1110, score_and_health_y});
     render_text(ui_manager.score_str_, {1030, score_and_health_y});
 
+    render_keys(ui_manager, score_and_health_y);
+
     // Render default values for other classes
     Sint16 y_location = 222;
     for (int i = 0; i < 4; ++i) {
@@ -233,6 +205,12 @@ void Renderer::render_frame() const {
   SDL_Flip(screen_);
 }
 
+void Renderer::load_new_level(SDL_Surface* level){
+  SDL_FreeSurface(level_background_);
+  level_background_ = level;
+}
+
+
 // Makes sure the frame returned by sprite.get_frame() is not empty
 bool Renderer::is_zero(SDL_Rect& sprite) const {
   return sprite.h == 0 && sprite.w == 0;
@@ -247,19 +225,12 @@ bool Renderer::clip(SDL_Rect& location) const {
 }
 
 // Renders part of the ui that never changes
-void Renderer::render_static_ui() {
+void Renderer::render_static_ui() const {
 
   // Render logo
   SDL_Rect src {0,0,220,56};
   SDL_Rect location {970, 10, 220, 56};
   SDL_BlitSurface(logo_, &src , screen_, &location);
-
-  struct ClassInfo {
-    std::string name;
-    SDL_Color color;
-    Sint16 x_location;
-    Sint16 y_location;
-  };
 
   // Define class names and their respective colors
   std::vector<ClassInfo> classes {
@@ -275,5 +246,15 @@ void Renderer::render_static_ui() {
     SDL_Rect location = {info.x_location, info.y_location};
     SDL_BlitSurface(message, nullptr, screen_, &location);
     SDL_FreeSurface(message);
+  }
+}
+
+void Renderer::render_keys(UIManager& ui_manager, Sint16 y_location) const {
+  y_location += 20;
+  SDL_Rect location {1050, y_location};
+
+  for(int i = 0; i < ui_manager.keys_; i++){
+    SDL_BlitSurface(key_, nullptr, screen_, &location);
+    location.x += 30;
   }
 }

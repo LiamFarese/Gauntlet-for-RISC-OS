@@ -4,6 +4,7 @@
 #include <vector>
 #include <SDL/SDL.h>
 
+#include "Door.hpp"
 #include "Level.hpp"
 #include "Pickup.hpp"
 #include "Player.hpp"
@@ -30,17 +31,21 @@ public:
   void load_level(int level_id);
 
   // Exposed entities for renderer
-  Player* player_;
+  std::unique_ptr<Player> player_;
   std::vector<Enemy> enemies_;
   std::vector<Projectile> enemy_projectiles_;
   std::vector<Projectile> player_projectiles_;
   std::vector<Pickup> pickups_;
+  std::vector<Door> doors_;
   Level::Map map_;
 
 private:
   // Entity collision detection, to be used between actors, projectiles and pickups
   template<typename T, typename C>
   bool check_collisions(const T& a, const C& b) const;
+
+  // Door collision
+  bool collide_door(const Player& player, const Door& door) const;
 
   // Wall collision detection, to be used on actor or projectile
   template<typename T>

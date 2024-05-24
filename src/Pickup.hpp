@@ -32,12 +32,29 @@ public:
           sprite_ = {160, 288, 32, 32}; break;
           break;
         case PickupType::kExit:
-          sprite_ = {384, 288, 32, 32}; break;
+          sprite_ = {384, 288, 0, 0}; break;
           break;
         }
   }
 
   PickupType pickup_type_;
-  SDL_Rect sprite_;
+
+  // For rendering and Collision compatibility
+  inline SDL_Rect get_position() const noexcept;
+  inline SDL_Rect get_frame() const noexcept;
+
+private:
+
   SDL_Rect position_;
+  SDL_Rect sprite_;
+
+
 };
+
+inline SDL_Rect Pickup::get_position() const noexcept {
+  return position_;
+}
+
+inline SDL_Rect Pickup::get_frame() const noexcept {
+  return sprite_;
+}

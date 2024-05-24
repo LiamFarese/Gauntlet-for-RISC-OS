@@ -15,6 +15,7 @@ public:
   Sprite(SpriteClass sprite_class);
 
   void set_animation(AnimationState state);
+  void set_firing_animation(Direction direction);
   void set_sprite_class(SpriteClass sprite);
   void update(); // To be called each frame to update animation
   SDL_Rect get_frame() const; // Render the current frame
