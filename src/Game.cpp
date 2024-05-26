@@ -125,6 +125,10 @@ void Game::render(World& world) {
     renderer_.render(p);
   }
 
+  for(const auto& door: world.doors_){
+    renderer_.render(door);
+  }
+  
   renderer_.render_sidebar(*ui_manager_);
 
   // Update the screen   

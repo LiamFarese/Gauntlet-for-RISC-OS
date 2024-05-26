@@ -33,6 +33,8 @@ public:
   template<typename T>
   void render(const T& t) const;
 
+  void render(const Door& door) const;
+
   void render_map(const Player& player);
   void render_title() const;
   void render_sidebar(UIManager& ui_manager);
@@ -57,7 +59,7 @@ private:
   TTF_Font* font_;
   TTF_Font* title_font_;
   SDL_Color text_color_ { 255, 255, 255 };
-  Uint32 screen_clear_color_;
+  Uint32 screen_clear_color_ = SDL_MapRGB(screen_->format, 0, 0, 0);
 
   // Private helper methods
   void render_static_ui() const;

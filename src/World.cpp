@@ -1,5 +1,7 @@
 #include "World.hpp"
+#include "Door.hpp"
 #include "Models.hpp"
+#include "Player.hpp"
 #include "Vector2.hpp"
 
 World::World(PlayerClass player_class) 
@@ -11,11 +13,14 @@ World::~World() {
 
 // Loads information about the level from the Level namespace
 void World::load_level(int level_id){
-  map_ = Level::load_level(level_id);
+  Level::Map map_ = std::move(Level::load_level(level_id));
   player_->set_position(map_.player_position);
   player_->set_last_state(map_.player_state);
   enemies_ = std::move(map_.enemies);
   pickups_ = std::move(map_.pickups);
+  doors_   = std::move(map_.doors);
+  tile_map_ = std::move(map_.tile_map);
+  level_name_ = map_.level_name;
 
   // Ensures projectiles do not persist to the next level or if the user backs out to menu
   player_projectiles_.clear();
@@ -79,6 +84,7 @@ template<typename T>
 bool World::wall_collision(const T& t) const {
 
   SDL_Rect p = t.get_position();
+  // Each tile is 32*32 pixels
   // If entity isn't perfectly on a tile it will check the next tile in the direction
   int y_overshot = p.y % 32;
   int x_overshot = p.x % 32;
@@ -90,9 +96,9 @@ bool World::wall_collision(const T& t) const {
 
   std::vector<bool> collided_tiles {};
 
-  collided_grid.push_back(&map_.tile_map[y_index]);
+  collided_grid.push_back(&tile_map_[y_index]);
   if (y_overshot != 0) {
-    collided_grid.push_back(&map_.tile_map[y_index + 1]);
+    collided_grid.push_back(&tile_map_[y_index + 1]);
   }
 
   for(const auto& row : collided_grid){
@@ -111,17 +117,28 @@ bool World::wall_collision(const T& t) const {
   return false;
 }
 
+//Opens a door if the player collides with it and has a key
 bool World::collide_door(const Player& player, const Door& door) const {
   SDL_Rect player_location = player_->get_position();
-  for(const auto& rect : door.Location){
-    if(!(player_location.x + player_location.w -1 < rect.x ||
-        player_location.x > rect.x + rect.w -1 ||
-        rect.y + player_location.h -1 < rect.y ||
-        rect.y > rect.y + rect.h -1)) {
+    // Check for collision with the door
+  for (const auto& rect : door.location) {
+    // Adjust collision detection logic
+    if (!(player_location.x + player_location.w + 8 < rect.x ||
+        player_location.x > rect.x + 40 ||
+        player_location.y + player_location.h + 8 < rect.y ||
+        player_location.y > rect.y + 40)){
           return true;
-      }
+    }
   }
   return false;
+}
+
+// Updates tile map so that the location doors are placed are set false
+void World::open_door(const Door& door){
+  for(const auto& door_segment : door.location){
+    // Each tile is 32*32 pixels
+    tile_map_[door_segment.y/32][door_segment.x/32] = false;
+  }
 }
 
 void World::handle_collisions() {
@@ -134,6 +151,7 @@ void World::handle_collisions() {
   // Player colliding with door
   for(auto door = doors_.begin(); door != doors_.end();){
     if(collide_door(*player_, *door) && player_->open_door()){
+      open_door(*door);
       door = doors_.erase(door);
       player_->notify(GameEvent::kOpenDoor);
     } else {
@@ -212,6 +230,7 @@ void World::handle_collisions() {
   // Handle collisions between player and enemies
   for (auto enemy = enemies_.begin(); enemy != enemies_.end(); ) {
     if (!enemy->is_dying() && check_collisions(*player_, *enemy)) {
+      player_->set_position(player_->get_last_position());
       player_->damage();
       player_->notify(GameEvent::kEnemyDestroyed);
       enemy->death();

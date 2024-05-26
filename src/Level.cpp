@@ -1,6 +1,8 @@
 #include "Level.hpp"
+#include "Door.hpp"
 #include "Enemy.hpp"
 #include "Pickup.hpp"
+#include <vector>
 
 namespace {
 
@@ -50,7 +52,7 @@ namespace {
     {1, 1, 1, 1, 1, 68, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 76, 74}
   };
 
-  const std::vector<std::vector<int>> training_2 = {
+  const std::vector<std::vector<int>> training_2 {
     {1, 1, 103, 0, 0, 107, 107, 107, 107, 109, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
     {1, 1, 102, 2, 2, 2, 2, 2, 2, 102, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
     {1, 1, 102, 2, 2, 2, 2, 2, 2, 102, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
@@ -97,78 +99,193 @@ namespace {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
   };
 
-  std::vector<Enemy> init_enemies(int level_id){
-    std::vector<Enemy> enemies;
-    switch (level_id) {
-      case 0:
-        enemies.reserve(50);
-        enemies.emplace_back(Enemy{EnemyClass::kDemon, {400, 128, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kBoxer, {432, 128, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {500, 128, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {64, 460, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {104, 460, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {144, 460, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {184, 460, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {224, 460, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {264, 460, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {304, 460, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {344, 460, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {384, 460, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {424, 420, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {464, 420, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {504, 420, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {544, 420, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {584, 420, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {624, 420, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {664, 420, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {704, 420, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {744, 420, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {784, 420, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {824, 420, 32, 32}});
+  const std::vector<std::vector<int>> training_3 {            
+            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+            {1, 1, 1, 87, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 93, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 10, 10, 87, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 93, 10, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 10, 87, 90, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 84, 93, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 87, 89, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 87, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 93, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 88, 91, 91, 91, 91, 90, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 11, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 11, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 86, 10, 10, 10, 10, 00, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 11, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 11, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 86, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 86, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 84, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 90, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 84, 93, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 86, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 10, 84, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 86, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 86, 1, 1, 1},
+            {1, 1, 1, 84, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 91, 90, 1, 1, 1},
+            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+  };
+
+ const std::vector<Enemy> training_1_enemies {
+        Enemy{EnemyClass::kGhost, {64, 460, 32, 32}},
+        Enemy{EnemyClass::kGhost, {104, 460, 32, 32}},
+        Enemy{EnemyClass::kGhost, {144, 460, 32, 32}},
+        Enemy{EnemyClass::kGhost, {184, 460, 32, 32}},
+        Enemy{EnemyClass::kGhost, {224, 460, 32, 32}},
+        Enemy{EnemyClass::kGhost, {264, 460, 32, 32}},
+        Enemy{EnemyClass::kGhost, {304, 460, 32, 32}},
+        Enemy{EnemyClass::kGhost, {344, 460, 32, 32}},
+        Enemy{EnemyClass::kGhost, {384, 460, 32, 32}},
+        Enemy{EnemyClass::kGhost, {424, 420, 32, 32}},
+        Enemy{EnemyClass::kGhost, {464, 420, 32, 32}},
+        Enemy{EnemyClass::kGhost, {504, 420, 32, 32}},
+        Enemy{EnemyClass::kGhost, {544, 420, 32, 32}},
+        Enemy{EnemyClass::kGhost, {584, 420, 32, 32}},
+        Enemy{EnemyClass::kGhost, {624, 420, 32, 32}},
+        Enemy{EnemyClass::kGhost, {664, 420, 32, 32}},
+        Enemy{EnemyClass::kGhost, {704, 420, 32, 32}},
+        Enemy{EnemyClass::kGhost, {744, 420, 32, 32}},
+        Enemy{EnemyClass::kGhost, {784, 420, 32, 32}},
+        Enemy{EnemyClass::kGhost, {824, 420, 32, 32}},
         // Second area
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {330, 800, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {232, 800, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {264, 800, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {296, 800, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {264, 850, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {304, 850, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {344, 850, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {384, 850, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {424, 850, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {464, 850, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {504, 860, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {544, 860, 32, 32}});
+        Enemy{EnemyClass::kGhost, {330, 800, 32, 32}},
+        Enemy{EnemyClass::kGhost, {232, 800, 32, 32}},
+        Enemy{EnemyClass::kGhost, {264, 800, 32, 32}},
+        Enemy{EnemyClass::kGhost, {296, 800, 32, 32}},
+        Enemy{EnemyClass::kGhost, {264, 850, 32, 32}},
+        Enemy{EnemyClass::kGhost, {304, 850, 32, 32}},
+        Enemy{EnemyClass::kGhost, {344, 850, 32, 32}},
+        Enemy{EnemyClass::kGhost, {384, 850, 32, 32}},
+        Enemy{EnemyClass::kGhost, {424, 850, 32, 32}},
+        Enemy{EnemyClass::kGhost, {464, 850, 32, 32}},
+        Enemy{EnemyClass::kGhost, {504, 860, 32, 32}},
+        Enemy{EnemyClass::kGhost, {544, 860, 32, 32}},
         // Third area
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {810, 1200, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {732, 1200, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {770, 1200, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {850, 1200, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {1000, 1200, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {604, 1200, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {644, 1200, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {684, 1200, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {900, 1200, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {940, 1200, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {500, 1200, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {400, 1200, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {810, 1300, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {732, 1300, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {770, 1300, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {850, 1300, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {1000, 1300, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {604, 1300, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {644, 1300, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {684, 1300, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {900, 1300, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {940, 1300, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {500, 1300, 32, 32}});
-        enemies.emplace_back(Enemy{EnemyClass::kGhost, {400, 1300, 32, 32}});
-        break;
-      default:
-        break;
-    }
-    return enemies;
-  }
+        Enemy{EnemyClass::kGhost, {810, 1200, 32, 32}},
+        Enemy{EnemyClass::kGhost, {732, 1200, 32, 32}},
+        Enemy{EnemyClass::kGhost, {770, 1200, 32, 32}},
+        Enemy{EnemyClass::kGhost, {850, 1200, 32, 32}},
+        Enemy{EnemyClass::kGhost, {1000, 1200, 32, 32}},
+        Enemy{EnemyClass::kGhost, {604, 1200, 32, 32}},
+        Enemy{EnemyClass::kGhost, {644, 1200, 32, 32}},
+        Enemy{EnemyClass::kGhost, {684, 1200, 32, 32}},
+        Enemy{EnemyClass::kGhost, {900, 1200, 32, 32}},
+        Enemy{EnemyClass::kGhost, {940, 1200, 32, 32}},
+        Enemy{EnemyClass::kGhost, {500, 1200, 32, 32}},
+        Enemy{EnemyClass::kGhost, {400, 1200, 32, 32}},
+        Enemy{EnemyClass::kGhost, {810, 1300, 32, 32}},
+        Enemy{EnemyClass::kGhost, {732, 1300, 32, 32}},
+        Enemy{EnemyClass::kGhost, {770, 1300, 32, 32}},
+        Enemy{EnemyClass::kGhost, {850, 1300, 32, 32}},
+        Enemy{EnemyClass::kGhost, {1000, 1300, 32, 32}},
+        Enemy{EnemyClass::kGhost, {604, 1300, 32, 32}},
+        Enemy{EnemyClass::kGhost, {644, 1300, 32, 32}},
+        Enemy{EnemyClass::kGhost, {684, 1300, 32, 32}},
+        Enemy{EnemyClass::kGhost, {900, 1300, 32, 32}},
+        Enemy{EnemyClass::kGhost, {940, 1300, 32, 32}},
+        Enemy{EnemyClass::kGhost, {500, 1300, 32, 32}},
+        Enemy{EnemyClass::kGhost, {400, 1300, 32, 32}}
+  };
+
+  const std::vector<Pickup> pickup_1 {
+                     Pickup{PickupType::kPoints, {600, 33, 32, 32}},
+                     Pickup{PickupType::kPoints, {1216, 544, 32, 32}},
+                     Pickup{PickupType::kPoints, {1216, 1312, 32, 32}},
+                     Pickup{PickupType::kPoints, {32, 928, 32, 32}},
+                     Pickup{PickupType::kExit, {192, 1152, 32, 32}},
+  };
+
+  const std::vector<Enemy> training_2_enemies {
+        Enemy{EnemyClass::kDemon, {736, 928, 32, 32}},
+        Enemy{EnemyClass::kDemon, {800, 928, 32, 32}},
+        Enemy{EnemyClass::kGhost, {800, 992, 32, 32}},
+        // Box
+        Enemy{EnemyClass::kDemon, {432, 1152, 32, 32}},
+        Enemy{EnemyClass::kDemon, {480, 1184, 32, 32}},
+        // Main area
+        Enemy{EnemyClass::kDemon, {512, 928, 32, 32}},
+        Enemy{EnemyClass::kDemon, {384, 928, 32, 32}},
+        Enemy{EnemyClass::kDemon, {288, 832, 32, 32}},
+        Enemy{EnemyClass::kDarkWizard, {160, 928, 32, 32}},
+        Enemy{EnemyClass::kDarkWizard, {128, 864, 32, 32}},
+        Enemy{EnemyClass::kBlueGhost, {170, 832, 32, 32}},
+        Enemy{EnemyClass::kGhost, {160,608, 32, 32}},
+        Enemy{EnemyClass::kGhost, {256,672 , 32, 32}},
+        Enemy{EnemyClass::kBlueGhost, {320, 640, 32, 32}},
+        Enemy{EnemyClass::kBlueGhost, {160, 704, 32, 32}},
+        Enemy{EnemyClass::kGhost, {416, 608, 32, 32}},
+        Enemy{EnemyClass::kDarkWizard, {156, 1000, 32, 32}},
+        Enemy{EnemyClass::kDarkWizard, {256, 640, 32, 32}},
+        Enemy{EnemyClass::kDarkWizard, {200, 640, 32, 32}},
+        Enemy{EnemyClass::kGhost, {160, 352, 32, 32}},
+        Enemy{EnemyClass::kBoxer, {160, 414, 32, 32}},
+        Enemy{EnemyClass::kDarkWizard, {224, 416, 32, 32}},
+        Enemy{EnemyClass::kBlueGhost, {160, 480, 32, 32}},
+        Enemy{EnemyClass::kGhost, {352, 448, 32, 32}},
+        Enemy{EnemyClass::kDemon, {512, 416, 32, 32}},
+        Enemy{EnemyClass::kBoxer, {416, 288, 32, 32}},
+        Enemy{EnemyClass::kBoxer, {448, 224, 32, 32}},       
+        Enemy{EnemyClass::kGhost, {544, 512, 32, 32}},
+        Enemy{EnemyClass::kDarkWizard, {544, 244, 32, 32}},
+        Enemy{EnemyClass::kDemon, {128, 244, 32, 32}},
+        Enemy{EnemyClass::kDarkWizard, {192, 160, 32, 32}},
+        Enemy{EnemyClass::kDarkWizard, {128, 96, 32, 32}},
+        Enemy{EnemyClass::kGhost, {416, 992, 32, 32}},
+        Enemy{EnemyClass::kBlueGhost, {416, 800, 32, 32}},
+        Enemy{EnemyClass::kBlueGhost, {544, 480, 32, 32}}
+    };
+    
+    const std::vector<Pickup> pickup_2 {
+                         Pickup{PickupType::kPoints, {448, 160, 32, 32}},
+                     Pickup{PickupType::kPoints, {480, 160, 32, 32}},
+                     Pickup{PickupType::kPoints, {512, 160, 32, 32}},
+                     Pickup{PickupType::kPoints, {576, 1280, 32, 32}},
+                     Pickup{PickupType::kHealth, {448, 1280, 32, 32}},
+                     Pickup{PickupType::kHealth, {480, 1280, 32, 32}},
+                     Pickup{PickupType::kHealth, {896, 448, 32, 32}},
+                     Pickup{PickupType::kExit, {92, 0, 32, 32}}
+    };
+
+    const std::vector<Enemy> training_3_enemies {};
+
+    const std::vector<Pickup> pickup_3 {
+                     Pickup{PickupType::kPoints, {128, 128, 32, 32}},
+                     Pickup{PickupType::kPoints, {128, 1120, 32, 32}},
+                     Pickup{PickupType::kPoints, {896, 256, 32, 32}},
+                     Pickup{PickupType::kPoints, {928, 928, 32, 32}},
+                     Pickup{PickupType::kHealth, {544, 768, 32, 32}},
+                     Pickup{PickupType::kHealth, {704, 768, 32, 32}},
+                     Pickup{PickupType::kPoints, {576, 768, 32, 32}},
+                     Pickup{PickupType::kPoints, {608, 768, 32, 32}},
+                     Pickup{PickupType::kPoints, {640, 768, 32, 32}},
+                     Pickup{PickupType::kPoints, {672, 768, 32, 32}},
+                     Pickup{PickupType::kKey, {1024, 896, 32, 32}},
+                     Pickup{PickupType::kKey, {352, 896, 32, 32}},
+                     Pickup{PickupType::kKey, {352, 288, 32, 32}},
+                     Pickup{PickupType::kExit, {608, 576, 32, 32}}
+    };
+
+    const std::vector<Door> doors_3 {
+      Door{{352, 288, 32, 32}, {{960, 512}, {960, 544}, {960, 576}, {960,608}}},
+      Door{{352, 288, 32, 32}, {{800, 384}, {800, 416}, {800, 448}}},
+      Door{{320, 288, 32, 32}, {{480, 672}, {512, 672}, {544, 672}, {576, 672}, {608, 672}, {640,672}, {672, 672}, {704, 672}, {736, 672}, {768, 672}}}
+    };
 }
 
 Level::Map Level::load_level(int level_number) {
@@ -182,14 +299,9 @@ Level::Map Level::load_level(int level_number) {
       map.level_name = "<!Gauntlet$Dir>.levels.training1";
       grid = training_1;
       map.player_position = {96, 128, 32, 32};
-      map.player_state = AnimationState::kIdleDown;
-      map.enemies = std::move(init_enemies(0));
-      map.pickups = {Pickup{PickupType::kPoints, {600, 33, 32, 32}},
-                     Pickup{PickupType::kPoints, {1216, 544, 32, 32}},
-                     Pickup{PickupType::kPoints, {1216, 1312, 32, 32}},
-                     Pickup{PickupType::kPoints, {32, 928, 32, 32}},
-                     Pickup{PickupType::kExit, {192, 1152, 32, 32}}
-      };
+      map.player_state = AnimationState::kIdleRight;
+      map.enemies = training_1_enemies;
+      map.pickups = pickup_1;
       break;
     case 1:
       map.level_number = 1;
@@ -197,16 +309,18 @@ Level::Map Level::load_level(int level_number) {
       grid = training_2;
       map.player_position = {896, 224, 32, 32};
       map.player_state = AnimationState::kIdleDown;
-      map.enemies = std::move(init_enemies(1));
-      map.pickups = {Pickup{PickupType::kPoints, {448, 160, 32, 32}},
-                     Pickup{PickupType::kPoints, {480, 160, 32, 32}},
-                     Pickup{PickupType::kPoints, {512, 160, 32, 32}},
-                     Pickup{PickupType::kPoints, {576, 1280, 32, 32}},
-                     Pickup{PickupType::kHealth, {448, 1280, 32, 32}},
-                     Pickup{PickupType::kHealth, {480, 1280, 32, 32}},
-                     Pickup{PickupType::kHealth, {896, 448, 32, 32}},
-                     Pickup{PickupType::kExit, {92, 0, 32, 32}}
-      };
+      map.enemies = training_2_enemies;
+      map.pickups = pickup_2;
+      break;
+    case 2:
+      map.level_number = 2;
+      map.level_name = "<!Gauntlet$Dir>.levels.training3";
+      grid = training_3;
+      map.player_position = {1088, 1056, 32, 32};
+      map.player_state = AnimationState::kIdleLeft;
+      map.enemies = training_3_enemies;
+      map.pickups = pickup_3;
+      map.doors = doors_3;
     default:
       break;
   }

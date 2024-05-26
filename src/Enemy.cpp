@@ -39,8 +39,6 @@ void Enemy::move(int pixels, World& world) {
   Sint16 dy = player_position.y - actor_.position_.y;
 
   if (standing_timer_ != 0) {
-    actor_.velocity_.x = dx;
-    actor_.velocity_.y = dy;
     set_moving_animation();
     return;
   }
@@ -130,19 +128,21 @@ bool Enemy::check_collisions(Enemy& a, Enemy& b, Sint16 dx, Sint16 dy) {
 
 void Enemy::move_around_tiles(World& world, Sint16 dy, Sint16 dx){
   if (std::abs(dx) < 600 && std::abs(dy) < 400) {
+    // Each tile is 32*32 pixels
     int tile_x = actor_.position_.x / 32;
     int tile_y = actor_.position_.y / 32;
 
     // Check the tiles directly adjacent to the enemy
-    bool top_blocked = world.map_.tile_map[tile_y - 1][tile_x];
-    bool top_right_blocked = !world.map_.tile_map[tile_y - 1][tile_x] & world.map_.tile_map[tile_y - 1][tile_x-1];
-    bool top_left_blocked = !world.map_.tile_map[tile_y - 1][tile_x] & world.map_.tile_map[tile_y - 1][tile_x+1];
-    bool left_top_blocked = !world.map_.tile_map[tile_y][tile_x-1] & world.map_.tile_map[tile_y+1][tile_x-1];
-    bool bottom_blocked = world.map_.tile_map[tile_y + 1][tile_x];
-    bool bottom_right_blocked = !world.map_.tile_map[tile_y+1][tile_x] & world.map_.tile_map[tile_y + 1][tile_x-1];
-    bool bottom_left_blocked = !world.map_.tile_map[tile_y+1][tile_x] & world.map_.tile_map[tile_y + 1][tile_x+1];
-    bool left_blocked = world.map_.tile_map[tile_y][tile_x - 1];
-    bool right_blocked = world.map_.tile_map[tile_y][tile_x + 1]; 
+    bool top_blocked = world.tile_map_[tile_y - 1][tile_x];
+    bool top_right_blocked = !world.tile_map_[tile_y - 1][tile_x] & world.tile_map_[tile_y - 1][tile_x-1];
+    bool top_left_blocked = !world.tile_map_[tile_y - 1][tile_x] & world.tile_map_[tile_y - 1][tile_x+1];
+    bool left_top_blocked = !world.tile_map_[tile_y][tile_x-1] & world.tile_map_[tile_y+1][tile_x-1];
+    bool right_bottom_blocked = !world.tile_map_[tile_y][tile_x+1] & world.tile_map_[tile_y-1][tile_x+1];
+    bool bottom_blocked = world.tile_map_[tile_y + 1][tile_x];
+    bool bottom_right_blocked = !world.tile_map_[tile_y+1][tile_x] & world.tile_map_[tile_y + 1][tile_x-1];
+    bool bottom_left_blocked = !world.tile_map_[tile_y+1][tile_x] & world.tile_map_[tile_y + 1][tile_x+1];
+    bool left_blocked = world.tile_map_[tile_y][tile_x - 1];
+    bool right_blocked = world.tile_map_[tile_y][tile_x + 1]; 
 
     // Check if the enemy is moving horizontally and if the direction is blocked
     if (actor_.velocity_.x > 0 && right_blocked) actor_.velocity_.x = 0;
@@ -156,7 +156,7 @@ void Enemy::move_around_tiles(World& world, Sint16 dy, Sint16 dx){
     if (actor_.velocity_.x < 0 && actor_.velocity_.y > 0 && bottom_left_blocked) actor_.velocity_.y = 0;
     if (actor_.velocity_.x < 0 && actor_.velocity_.y < 0 && top_left_blocked) actor_.velocity_.y = 0;
     if (actor_.velocity_.x < 0 && actor_.velocity_.y < 0 && left_top_blocked) actor_.velocity_.x = 0;
-
+    if (actor_.velocity_.x > 0 && actor_.velocity_.y > 0 && right_bottom_blocked) actor_.velocity_.x = 0;
     if (actor_.velocity_.x > 0 && actor_.velocity_.y < 0 && top_right_blocked) actor_.velocity_.y = 0;
     if (actor_.velocity_.x > 0 && actor_.velocity_.y > 0 && bottom_right_blocked) actor_.velocity_.y = 0;
 
@@ -209,7 +209,6 @@ void Enemy::set_moving_animation() {
 
 void Enemy::update(World& world){
 
-  SDL_Rect player_position = world.player_->get_position();
   if(actor_.dying_){
     sprite_.update();
     if(sprite_.ended_){
@@ -218,9 +217,11 @@ void Enemy::update(World& world){
     return;
   }
 
+  SDL_Rect player_position = world.player_->get_position();
+
   // If offscreen
-  if(std::abs(player_position.x - actor_.position_.x) > 1000 && 
-     std::abs(player_position.y - actor_.position_.y) > 700){
+  if(std::abs(player_position.x - actor_.position_.x) > 700 && 
+     std::abs(player_position.y - actor_.position_.y) > 400){
     sprite_.update();
     return;
   }
@@ -230,8 +231,11 @@ void Enemy::update(World& world){
   if (enemy_class_ == EnemyClass::kDemon || enemy_class_ == EnemyClass::kDarkWizard) {
     Uint32 current = SDL_GetTicks() - actor_.last_fire_;
 
-    if(rand() % 100 <= 33 && current > 1000){
-      actor_.firing_ = true;
+    bool firing_distance = std::abs(player_position.x - actor_.position_.x) < 500 && 
+                           std::abs(player_position.y - actor_.position_.y) < 500;
+
+    if (rand() % 100 <= 33 && current > static_cast<Uint32>(1000 + rand() % 500) && firing_distance) {
+        actor_.firing_ = true;
     }
 
     // If the enemy is standing still, increment the standing timer

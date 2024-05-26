@@ -78,6 +78,17 @@ void Renderer::clear(){
   SDL_FillRect(screen_, nullptr, screen_clear_color_);
 }
 
+void Renderer::render(const Door& door) const {
+  SDL_Rect sprite = door.sprite;
+
+  for(const auto& door_segment : door.location){
+    SDL_Rect position = door_segment;
+    position.x -= camera_.x;
+    position.y -= camera_.y;
+    SDL_BlitSurface(sprite_sheet_, &sprite, screen_, &position); 
+  }
+}
+
 // Renders the level background
 void Renderer::render_map(const Player& player) {
  // Calculate the center of the camera

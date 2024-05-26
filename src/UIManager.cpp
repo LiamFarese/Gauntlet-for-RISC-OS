@@ -47,7 +47,7 @@ void UIManager::on_notify(GameEvent event){
       // TODO: implement potions 
       break;
     case GameEvent::kKeyPickup:
-      // TODO: implement keys
+      keys_++;
       break;
     case GameEvent::kMenu:
       game_running = false; 

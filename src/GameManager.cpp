@@ -6,17 +6,21 @@ GameManager::GameManager(): level_exited(false), level_id(0), running_(false), t
 
 std::string GameManager::load_level(World& world, UIManager& ui_manager_){
   std::string level_name {};
-  std::cout << level_id;
   switch(level_id){
     case (0):
       world.load_level(0); 
-      level_name = world.map_.level_name;
+      level_name = world.level_name_;
       ui_manager_.level_name_ = "Training 1";
       break;
     case (1):
       world.load_level(1); 
-      level_name = world.map_.level_name;
+      level_name = world.level_name_;
       ui_manager_.level_name_ = "Training 2";
+      break;
+    case (2):
+      world.load_level(2);
+      level_name = world.level_name_;
+      ui_manager_.level_name_ = "Training 3";
       break;
     default:
       level_name = "ended";
@@ -38,13 +42,11 @@ void GameManager::on_notify(GameEvent event){
     case GameEvent::kLevelExit:
       level_exited = true;
       level_id++;
-      std::cout << "Level exited. New level ID: " << level_id << std::endl;
       break;
     case GameEvent::KGameEnd:
       running_ = false;
       title_screen_ = true;
       level_id = 0;
-      std::cout << "Game ended. New level ID: " << level_id << std::endl;
       break;
     case GameEvent::kPlayerDeath:
       running_ = false;
