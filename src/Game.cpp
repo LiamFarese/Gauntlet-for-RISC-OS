@@ -1,5 +1,6 @@
 #include "Game.hpp"
 
+#include <algorithm>
 #include <iostream>
 #include <memory>
 
@@ -103,39 +104,32 @@ void Game::handle_menu_events(){
   } 
 }
 
+template <typename T>
+void Game::render_container(const T& container) const {
+  for(const auto& entity: container){
+    renderer_.render(entity);
+  }
+}
+
 void Game::render(World& world) {
 
   renderer_.render_map(*world.player_);
   
   renderer_.render(*world.player_);
 
-  for(const auto& enemy: world.enemies_){
-    renderer_.render(enemy);
-  }
+  render_container(world.enemies_);
+  render_container(world.player_projectiles_);
+  render_container(world.enemy_projectiles_);
+  render_container(world.pickups_);
+  render_container(world.doors_);
 
-  for(const auto& p: world.player_projectiles_){
-    renderer_.render(p);
-  }
-
-  for(const auto& p: world.enemy_projectiles_){
-    renderer_.render(p);
-  }
-
-  for(const auto& p : world.pickups_){
-    renderer_.render(p);
-  }
-
-  for(const auto& door: world.doors_){
-    renderer_.render(door);
-  }
-  
   renderer_.render_sidebar(*ui_manager_);
 
   // Update the screen   
   renderer_.render_frame();
 }
 
-void Game::render_title() {
+void Game::render_title() const {
   renderer_.render_title();
   renderer_.render_sidebar(*ui_manager_);
   renderer_.render_frame();
@@ -179,6 +173,7 @@ void Game::run_game() {
   Uint32 frame_time  {0};
   
   while (game_manager_->running_) {
+    auto start = std::chrono::high_resolution_clock::now();
 
     if(game_manager_->level_exited){
       load_level(world);
@@ -200,7 +195,10 @@ void Game::run_game() {
       accumulator -= kTickRate;
     }
 
-    render(world);
+    // render(world);
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    frame_times_.push_back(elapsed.count());
   }
 }
 
@@ -224,12 +222,21 @@ void Game::start(){
     }
   }
 
+  std::sort(frame_times_.begin(), frame_times_.end(), [](double a, double b) {
+    return a > b; // Sort in descending order
+  });
   renderer_.clear();
   std::stringstream closing_message;
   closing_message << "Game Closing, time since elapsed : " << SDL_GetTicks();
-  renderer_.render_text(closing_message.str(), {150, 300});
+  renderer_.render_text(closing_message.str(), {150, 100});
+  std::stringstream median;
+  median << "Median Frame time : " << frame_times_[frame_times_.size()/2];
+  renderer_.render_text(median.str(), {150, 200});
+  std::stringstream low;
+  low << "5% low Frame time : " << frame_times_[frame_times_.size()/100];
+  renderer_.render_text(low.str(), {150, 300});
   renderer_.render_frame();
-  SDL_Delay(1000);
+  SDL_Delay(10000);
 }
 
 void Game::notify(GameEvent event){

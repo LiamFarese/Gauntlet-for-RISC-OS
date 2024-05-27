@@ -37,9 +37,9 @@ public:
 
   void render_map(const Player& player);
   void render_title() const;
-  void render_sidebar(UIManager& ui_manager);
-  void render_class_text(const std::stringstream& message_string, SDL_Rect location, SDL_Color color);
-  void render_text(const std::string& message_string, SDL_Rect location);
+  void render_sidebar(UIManager& ui_manager) const;
+  void render_class_text(const std::stringstream& message_string, SDL_Rect location, SDL_Color color) const;
+  void render_text(const std::string& message_string, SDL_Rect location) const;
   void render_frame() const;
 
   void load_new_level(SDL_Surface* level);

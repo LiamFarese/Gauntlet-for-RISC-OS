@@ -1,8 +1,12 @@
 #include "World.hpp"
+
+#include <thread>
+
 #include "Door.hpp"
 #include "Models.hpp"
 #include "Player.hpp"
 #include "Vector2.hpp"
+
 
 World::World(PlayerClass player_class) 
   : player_(new Player(player_class)) {
@@ -27,10 +31,7 @@ void World::load_level(int level_id){
   enemy_projectiles_.clear();
 }
 
-void World::update(SDL_Rect& camera) {
-  player_->update(*this);
-
-  // Update enemies
+void World::update_enemies() {
   for(auto it = enemies_.begin(); it != enemies_.end(); ) {
     it->update(*this);
     if (it->is_dead()) {
@@ -39,26 +40,30 @@ void World::update(SDL_Rect& camera) {
       ++it;
     }
   }
+}
 
-  // Update player projectiles
-  for(auto it = player_projectiles_.begin(); it != player_projectiles_.end(); ) {
+void World::update_projectiles(std::vector<Projectile>& projectiles) {
+  for(auto it = projectiles.begin(); it != projectiles.end(); ) {
     it->update(*this);
     if (it->destroyed_) {
-      it = player_projectiles_.erase(it);
+      it = projectiles.erase(it);
     } else {
       ++it;
     }
   }
+}
 
-  // Update enemy projectiles
-  for(auto it = enemy_projectiles_.begin(); it != enemy_projectiles_.end(); ) {
-    it->update(*this);
-    if (it->destroyed_) {
-      it = enemy_projectiles_.erase(it);
-    } else {
-      ++it;
-    }
-  }
+void World::update(SDL_Rect& camera) {
+  player_->update(*this);
+
+  std::thread enemies_thread([this]() { update_enemies(); });
+  std::thread player_projectiles_thread([this]() { update_projectiles(player_projectiles_); });
+  std::thread enemy_projectiles_thread([this]() { update_projectiles(enemy_projectiles_); });
+
+  // Wait for all threads to finish
+  enemies_thread.join();
+  player_projectiles_thread.join();
+  enemy_projectiles_thread.join();
   
   handle_collisions();
 }

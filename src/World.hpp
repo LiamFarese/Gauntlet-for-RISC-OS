@@ -45,6 +45,10 @@ public:
   std::vector<std::vector<bool>> tile_map_;
 
 private:
+
+  void update_projectiles(std::vector<Projectile>& projectiles);
+  void update_enemies();
+
   // Entity collision detection, to be used between actors, projectiles and pickups
   template<typename T, typename C>
   bool check_collisions(const T& a, const C& b) const;

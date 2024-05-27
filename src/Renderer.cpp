@@ -132,7 +132,7 @@ void Renderer::render_title() const{
 }
 
 // Renders the entire sidebar
-void Renderer::render_sidebar(UIManager& ui_manager) {
+void Renderer::render_sidebar(UIManager& ui_manager) const {
   // Clear background and set it to black
   SDL_Rect ui {960, 0, 240, 640};
   SDL_FillRect(screen_, &ui, SDL_MapRGB(screen_->format, 0, 0, 0));
@@ -197,14 +197,14 @@ void Renderer::render_sidebar(UIManager& ui_manager) {
 }
 
 // Renders text using the class colors and font size
-void Renderer::render_class_text(const std::stringstream& message_string, SDL_Rect location, SDL_Color color) {
+void Renderer::render_class_text(const std::stringstream& message_string, SDL_Rect location, SDL_Color color) const {
   SDL_Surface* message = TTF_RenderText_Solid(title_font_, message_string.str().c_str(), color);
   SDL_BlitSurface(message, nullptr, screen_, &location);
   SDL_FreeSurface(message);
 }
 
 // Generic method for rendering standard white text
-void Renderer::render_text(const std::string& message_string, SDL_Rect location) {
+void Renderer::render_text(const std::string& message_string, SDL_Rect location) const {
   SDL_Surface* message = TTF_RenderText_Solid(font_, message_string.c_str(), text_color_);
 
   SDL_BlitSurface(message, nullptr, screen_, &location);
