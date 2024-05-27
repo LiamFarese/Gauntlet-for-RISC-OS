@@ -51,6 +51,11 @@ public:
   inline void addObserver(std::shared_ptr<IObserver> observer);
   inline void notify(GameEvent event);
 
+  // Testing functions
+  inline int get_health();
+  inline int get_damage_per_hit();
+  inline int get_keys();
+
 private:
 
   // Components
@@ -121,4 +126,16 @@ inline void Player::notify(GameEvent event){
 
 inline void Player::addObserver(std::shared_ptr<IObserver> observer) {
   subject_.addObserver(observer);
+}
+
+inline int Player::get_health(){
+  return health_;
+}
+
+inline int Player::get_damage_per_hit(){
+  return damage_per_hit; 
+}
+
+inline int Player::get_keys(){
+  return keys_;
 }

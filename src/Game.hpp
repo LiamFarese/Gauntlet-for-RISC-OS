@@ -32,8 +32,6 @@ private:
   Renderer renderer_;
   Subject subject_;
 
-  std::vector<double> frame_times_;
-
   // Observers
   std::shared_ptr<UIManager> ui_manager_;
   std::shared_ptr<SoundManager> sound_manager_;
@@ -58,4 +56,7 @@ private:
   // Helper methods for initialization
   Renderer init_renderer();
 
+  #ifdef FPS_TEST
+  std::vector<Uint32> frame_times_;
+  #endif
 };
