@@ -161,7 +161,6 @@ void Player::pickup_item(Pickup pickup){
       notify(GameEvent::kHealthPickup);
       break;
     case PickupType::kHealthPotion:
-      // TODO: implement potions
       notify(GameEvent::kHealthPotionPickup);
       break;
     case PickupType::kDestroyPotion:

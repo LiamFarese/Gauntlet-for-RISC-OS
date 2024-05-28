@@ -174,9 +174,6 @@ void Game::run_game() {
   Uint32 frame_time  {0};
   
   while (game_manager_->running_) {
-    #ifdef FPS_TEST
-    auto start = SDL_GetTicks();
-    #endif
 
     if(game_manager_->level_exited){
       load_level(world);
@@ -194,16 +191,11 @@ void Game::run_game() {
     handle_game_events(world);
 
     while(accumulator > kTickRate) {
-      world.update(renderer_.camera_);
+      world.update();
       accumulator -= kTickRate;
     }
 
     render(world);
-    #ifdef FPS_TEST
-    auto end = SDL_GetTicks();
-    auto elapsed = end - start;
-    frame_times_.push_back(elapsed);
-    #endif
   }
 }
 
@@ -231,21 +223,9 @@ void Game::start(){
   std::stringstream closing_message;
   closing_message << "Game Closing, time since elapsed : " << SDL_GetTicks();
   renderer_.render_text(closing_message.str(), {150, 100});
-
-  #ifdef FPS_TEST
-  std::sort(frame_times_.begin(), frame_times_.end(), [](double a, double b) {
-    return a > b; // Sort in descending order
-  });
-  std::stringstream median;
-  median << "Median Frame time : " << frame_times_[frame_times_.size()/2];
-  renderer_.render_text(median.str(), {150, 200});
-  std::stringstream low;
-  low << "5% low Frame time : " << frame_times_[frame_times_.size()/100];
-  renderer_.render_text(low.str(), {150, 300});
-  #endif
   
   renderer_.render_frame();
-  SDL_Delay(10000);
+  SDL_Delay(2000);
 }
 
 void Game::notify(GameEvent event){

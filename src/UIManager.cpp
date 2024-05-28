@@ -41,7 +41,7 @@ void UIManager::on_notify(GameEvent event){
       update_health(100); 
       break;
     case GameEvent::kHealthPotionPickup: 
-      // TODO: implement potions
+      health_potions_++;
       break;
     case GameEvent::kDestroyPotionPickup:
       // TODO: implement potions 

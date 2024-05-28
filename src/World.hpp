@@ -25,7 +25,7 @@ public:
   ~World();
 
   // Method to update the world state, takes camera as a parameter to cull updates on offscreen enemies
-  void update(SDL_Rect& camera);
+  void update();
 
   // Method to load a new level
   void load_level(int level_id);

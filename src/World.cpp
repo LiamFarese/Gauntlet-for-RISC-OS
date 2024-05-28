@@ -53,14 +53,13 @@ void World::update_projectiles(std::vector<Projectile>& projectiles) {
   }
 }
 
-void World::update(SDL_Rect& camera) {
+void World::update() {
   player_->update(*this);
 
   std::thread enemies_thread([this]() { update_enemies(); });
   std::thread player_projectiles_thread([this]() { update_projectiles(player_projectiles_); });
   std::thread enemy_projectiles_thread([this]() { update_projectiles(enemy_projectiles_); });
 
-  // Wait for all threads to finish
   enemies_thread.join();
   player_projectiles_thread.join();
   enemy_projectiles_thread.join();
@@ -81,7 +80,6 @@ bool World::check_collisions(const T& a, const C& b) const {
     }
   return true;
 }
-
 
 // Terrain collision is represented by vector<vector<bool>>, this function checks
 // that tiles the entity occupies are not true (blocked)

@@ -56,6 +56,9 @@ void GameManager::on_notify(GameEvent event){
       running_ = false;
       title_screen_ = false;
       break;
+    case GameEvent::kHealthPotionPickup:
+      // No action
+      break;
     default:
       break;
   }

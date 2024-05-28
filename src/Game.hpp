@@ -56,7 +56,5 @@ private:
   // Helper methods for initialization
   Renderer init_renderer();
 
-  #ifdef FPS_TEST
   std::vector<Uint32> frame_times_;
-  #endif
 };
