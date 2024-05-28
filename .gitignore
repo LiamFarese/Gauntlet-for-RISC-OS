@@ -7,3 +7,4 @@
 # Ignore Visual Studio Code settings
 .vscode/
 
+build/
