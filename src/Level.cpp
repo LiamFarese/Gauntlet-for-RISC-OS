@@ -262,7 +262,32 @@ namespace {
                      Pickup{PickupType::kExit, {92, 0, 32, 32}}
     };
 
-    const std::vector<Enemy> training_3_enemies {};
+    const std::vector<Enemy> training_3_enemies {
+      Enemy{EnemyClass::kDarkWizard, {224, 1056, 32, 32}},
+      Enemy{EnemyClass::kDarkWizard, {416, 1056, 32, 32}},
+      Enemy{EnemyClass::kDemon, {416, 992, 32, 32}},
+      Enemy{EnemyClass::kGhost, {672, 1024, 32, 32}},
+      Enemy{EnemyClass::kDarkWizard, {544, 448, 32, 32}},
+      Enemy{EnemyClass::kDemon, {736, 544, 32, 32}},
+      Enemy{EnemyClass::kDemon, {512, 416, 32, 32}},
+      Enemy{EnemyClass::kDemon, {640, 416, 32, 32}},
+      Enemy{EnemyClass::kBoxer, {160, 864, 32, 32}},
+      Enemy{EnemyClass::kBoxer, {224, 864, 32, 32}},
+      Enemy{EnemyClass::kBoxer, {160, 678, 32, 32}},
+      Enemy{EnemyClass::kBoxer, {224, 678, 32, 32}},
+      Enemy{EnemyClass::kBoxer, {160, 763, 32, 32}},
+      Enemy{EnemyClass::kBoxer, {224, 763, 32, 32}},
+      Enemy{EnemyClass::kBlueGhost, {736, 1088, 32, 32}},
+      Enemy{EnemyClass::kBlueGhost, {1024, 640, 32, 32}},
+      Enemy{EnemyClass::kBlueGhost, {1056, 448, 32, 32}},
+      Enemy{EnemyClass::kBlueGhost, {1056, 896, 32, 32}},
+      Enemy{EnemyClass::kDarkWizard, {864, 736, 32, 32}},
+      Enemy{EnemyClass::kDarkWizard, {768, 896, 32, 32}},
+      Enemy{EnemyClass::kDarkWizard, {416, 736, 32, 32}},
+      Enemy{EnemyClass::kDarkWizard, {352, 512, 32, 32}},
+      Enemy{EnemyClass::kDarkWizard, {384, 320, 32, 32}},
+      Enemy{EnemyClass::kDemon, {768, 288, 32, 32}},
+    };
 
     const std::vector<Pickup> pickup_3 {
                      Pickup{PickupType::kPoints, {128, 128, 32, 32}},

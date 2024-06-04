@@ -69,13 +69,13 @@ void World::update() {
 
 template<typename T, typename C>
 bool World::check_collisions(const T& a, const C& b) const {
-  SDL_Rect a_position = a.get_position();
-  SDL_Rect b_position = b.get_position();
+  const SDL_Rect a_position = a.get_position();
+  const SDL_Rect b_position = b.get_position();
 
-  if(a_position.x + a_position.w -1 < b_position.x ||
-    a_position.x > b_position.x + b_position.w -1 ||
-    a_position.y + a_position.h -1 < b_position.y ||
-    a_position.y > b_position.y + b_position.h -1) {
+  if(a_position.x + a_position.w < b_position.x ||
+    a_position.x > b_position.x + b_position.w ||
+    a_position.y + a_position.h < b_position.y ||
+    a_position.y > b_position.y + b_position.h) {
       return false;
     }
   return true;
@@ -86,14 +86,14 @@ bool World::check_collisions(const T& a, const C& b) const {
 template<typename T>
 bool World::wall_collision(const T& t) const {
 
-  SDL_Rect p = t.get_position();
+  const SDL_Rect p = t.get_position();
   // Each tile is 32*32 pixels
   // If entity isn't perfectly on a tile it will check the next tile in the direction
-  int y_overshot = p.y % 32;
-  int x_overshot = p.x % 32;
+  const int y_overshot = p.y % kTileSize;
+  const int x_overshot = p.x % kTileSize;
 
-  int y_index = p.y / 32;
-  int x_index = p.x / 32;
+  const int y_index = p.y / kTileSize;
+  const int x_index = p.x / kTileSize;
 
   std::vector<const std::vector<bool>*> collided_grid;
 
@@ -120,9 +120,9 @@ bool World::wall_collision(const T& t) const {
   return false;
 }
 
-//Opens a door if the player collides with it and has a key
+// Opens a door if the player collides with it and has a key
 bool World::collide_door(const Player& player, const Door& door) const {
-  SDL_Rect player_location = player_->get_position();
+  const SDL_Rect player_location = player_->get_position();
     // Check for collision with the door
   for (const auto& rect : door.location) {
     // Adjust collision detection logic
@@ -140,7 +140,7 @@ bool World::collide_door(const Player& player, const Door& door) const {
 void World::open_door(const Door& door){
   for(const auto& door_segment : door.location){
     // Each tile is 32*32 pixels
-    tile_map_[door_segment.y/32][door_segment.x/32] = false;
+    tile_map_[door_segment.y/kTileSize][door_segment.x/kTileSize] = false;
   }
 }
 

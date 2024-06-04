@@ -16,6 +16,9 @@
 
 class Player;
 
+// Each tile is 32 pixels
+constexpr Sint16 kTileSize {32}; 
+
 // The World class manages the game world state, including the player, enemies, projectiles, and pickups.
 class World {
 
