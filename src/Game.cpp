@@ -182,7 +182,7 @@ void Game::run_game() {
 
     current = SDL_GetTicks();
 
-    // Time the last frame took to render
+    // Time the last frame took to render 
     frame_time = current - previous;
     previous = current;
 

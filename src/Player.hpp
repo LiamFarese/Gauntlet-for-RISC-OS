@@ -7,6 +7,7 @@
 
 #include "Actor.hpp"
 #include "IObserver.hpp"
+#include "IObject.hpp"
 #include "Models.hpp"
 #include "Pickup.hpp"
 #include "Projectile.hpp"
@@ -17,7 +18,7 @@ class World;
 class SoundManager;
 class UIManager;
 
-class Player {
+class Player : public IObject {
 
 public:
 
@@ -27,7 +28,7 @@ public:
   void handle_inputs(const SDL_Event& event);
 
   // Method to update player state
-  void update(World& world);
+  virtual void update(World& world) override;
 
   // Method to apply damage to the player
   void damage();

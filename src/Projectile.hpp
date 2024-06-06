@@ -2,18 +2,19 @@
 
 #include <SDL/SDL.h>
 
+#include "IObject.hpp"
 #include "Sprite.hpp"
 #include "Models.hpp"
 
 class World;
 
-class Projectile {
+class Projectile : public IObject {
 
 public:
 
   Projectile(SDL_Rect location_, Direction direction, SpriteClass sprite_class, int id);
 
-  void update(World& world);
+  virtual void update(World& world) override;
   void destruct();
 
   // Component

@@ -3,6 +3,7 @@
 #include <random>
 
 #include "Actor.hpp"
+#include "IObject.hpp"
 #include "Projectile.hpp"
 #include "SDL/SDL_stdinc.h"
 #include "Sprite.hpp"
@@ -16,13 +17,13 @@ enum class EnemyClass{
 };
 
 
-class Enemy {
+class Enemy : public IObject {
 
 public:
 
   Enemy(EnemyClass enemy_class, SDL_Rect position);
 
-  void update(World& world);
+  virtual void update(World& world) override;
   void death();
 
   int id_;

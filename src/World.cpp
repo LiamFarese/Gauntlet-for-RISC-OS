@@ -17,7 +17,7 @@ World::~World() {
 
 // Loads information about the level from the Level namespace
 void World::load_level(int level_id){
-  Level::Map map_ = std::move(Level::load_level(level_id));
+  Level::Map map_ = Level::load_level(level_id);
   player_->set_position(map_.player_position);
   player_->set_last_state(map_.player_state);
   enemies_ = std::move(map_.enemies);
@@ -56,13 +56,9 @@ void World::update_projectiles(std::vector<Projectile>& projectiles) {
 void World::update() {
   player_->update(*this);
 
-  std::thread enemies_thread([this]() { update_enemies(); });
-  std::thread player_projectiles_thread([this]() { update_projectiles(player_projectiles_); });
-  std::thread enemy_projectiles_thread([this]() { update_projectiles(enemy_projectiles_); });
-
-  enemies_thread.join();
-  player_projectiles_thread.join();
-  enemy_projectiles_thread.join();
+  update_enemies();
+  update_projectiles(player_projectiles_);
+  update_projectiles(enemy_projectiles_);
   
   handle_collisions();
 }
